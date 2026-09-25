@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimPortfolio - 智能多资产配置终端</title>
+    <title>SimPortfolio - 动态多资产配置与成长终端</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Chart.js -->
@@ -16,10 +16,12 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
-                <span class="text-xl font-bold tracking-tight">SimPortfolio<span class="text-indigo-400 text-sm ml-2 font-normal">多资产矩阵与智能终端</span></span>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span class="text-indigo-400 text-sm ml-2 font-normal">动态大类资产终端</span></span>
             </div>
-            <div class="text-xs text-slate-400 hidden sm:block">
-                行级智能检索 | 动态百分比饼图 | 现金独立算息
+            <div class="flex items-center space-x-3">
+                <button onclick="addNewCategoryModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition shadow">
+                    + 新增大类资产板块
+                </button>
             </div>
         </div>
     </header>
@@ -27,136 +29,51 @@
     <!-- 主体内容区 -->
     <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- 左侧：大类资产矩阵账本 (7列) -->
-        <section class="lg:col-span-7 space-y-6">
-            
-            <!-- 1. 股票类资产 -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider">📈 股票类（美股 / A股 / 港股）</h2>
-                    <button onclick="addAssetRow('stock')" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加股票</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400">
-                                <th class="pb-2 font-medium w-36">代码 (回车或失焦自动识别)</th>
-                                <th class="pb-2 font-medium">持仓数量</th>
-                                <th class="pb-2 font-medium">买入成本</th>
-                                <th class="pb-2 font-medium">当前市值/现价</th>
-                                <th class="pb-2 font-medium text-right">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stock-table-body" class="divide-y divide-slate-800/50"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 2. 大宗产品类资产 -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider">🛢️ 大宗产品（黄金 / 石油）</h2>
-                    <button onclick="addAssetRow('commodity')" class="text-xs bg-amber-600/80 hover:bg-amber-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加大宗产品</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400">
-                                <th class="pb-2 font-medium w-36">品种代码</th>
-                                <th class="pb-2 font-medium">持仓数量</th>
-                                <th class="pb-2 font-medium">买入成本</th>
-                                <th class="pb-2 font-medium">当前市值/现价</th>
-                                <th class="pb-2 font-medium text-right">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="commodity-table-body" class="divide-y divide-slate-800/50"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 3. 加密货币类资产 -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-bold text-purple-400 uppercase tracking-wider">🪙 加密货币（比特币 / 以太坊）</h2>
-                    <button onclick="addAssetRow('crypto')" class="text-xs bg-purple-600/80 hover:bg-purple-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加加密币</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400">
-                                <th class="pb-2 font-medium w-36">币种代码</th>
-                                <th class="pb-2 font-medium">持仓数量</th>
-                                <th class="pb-2 font-medium">买入成本</th>
-                                <th class="pb-2 font-medium">当前市值/现价</th>
-                                <th class="pb-2 font-medium text-right">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="crypto-table-body" class="divide-y divide-slate-800/50"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 4. 现金类资产（独立生息） -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">💵 现金类（余额宝 / 货币基金 - 独立算息）</h2>
-                    <button onclick="addAssetRow('cash')" class="text-xs bg-emerald-600/80 hover:bg-emerald-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加现金账户</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400">
-                                <th class="pb-2 font-medium w-36">账户名称</th>
-                                <th class="pb-2 font-medium">现金总额 (本金)</th>
-                                <th class="pb-2 font-medium">预期年化收益率(%)</th>
-                                <th class="pb-2 font-medium">当前价值</th>
-                                <th class="pb-2 font-medium text-right">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cash-table-body" class="divide-y divide-slate-800/50"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="flex justify-end">
-                <button onclick="saveAndRefresh()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg">
-                    保存并刷新全部资产
-                </button>
-            </div>
+        <!-- 左侧：动态大类资产矩阵容器 (7列) -->
+        <section id="categories-container" class="lg:col-span-7 space-y-6">
+            <!-- 动态注入各板块表格 -->
         </section>
 
         <!-- 右侧：总览看板与图表 (5列) -->
         <section class="lg:col-span-5 space-y-6 sticky top-20 h-fit">
-            <!-- 核心统计卡片（含初始总投入） -->
+            <!-- 核心统计卡片 -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                <h3 class="text-sm font-semibold text-slate-300">资产总览看板</h3>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-300">资产总览与收盘记录</h3>
+                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg transition font-medium shadow">
+                        📸 保存今日净值快照
+                    </button>
+                </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
                         <span class="text-[10px] text-slate-400 block mb-1">初始总投入</span>
-                        <span id="total-portfolio-cost" class="text-base font-bold text-slate-200">$0.00</span>
+                        <span id="total-portfolio-cost" class="text-sm font-bold text-slate-200">$0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1">总资产净值</span>
-                        <span id="total-portfolio-value" class="text-base font-bold text-white">$0.00</span>
+                        <span class="text-[10px] text-slate-400 block mb-1">当前总净值</span>
+                        <span id="total-portfolio-value" class="text-sm font-bold text-white">$0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
                         <span class="text-[10px] text-slate-400 block mb-1">总浮动盈亏</span>
-                        <span id="total-portfolio-profit" class="text-base font-bold text-emerald-400">+$0.00</span>
+                        <span id="total-portfolio-profit" class="text-sm font-bold text-emerald-400">+$0.00</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 资产配比饼图（自动显示百分比） -->
+            <!-- 资产配比饼图 -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h3 class="text-sm font-semibold text-slate-200 mb-3">大类资产配置比例</h3>
-                <div class="relative h-[200px] w-full flex items-center justify-center">
+                <div class="relative h-[180px] w-full flex items-center justify-center">
                     <canvas id="assetPieChart"></canvas>
                 </div>
             </div>
 
-            <!-- 资产增长折线图 -->
+            <!-- 历史净值成长折线图 (按真实输入时间轴) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-sm font-semibold text-slate-200 mb-3">历史净值增长趋势</h3>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-slate-200">历史净值成长曲线</h3>
+                    <button onclick="clearHistorySnapshots()" class="text-[10px] text-rose-400 hover:underline">清空历史记录</button>
+                </div>
                 <div class="relative h-[180px] w-full flex items-center justify-center">
                     <canvas id="portfolioLineChart"></canvas>
                 </div>
@@ -165,236 +82,295 @@
 
     </main>
 
-    <!-- 前端逻辑 -->
+    <!-- 前端核心逻辑 -->
     <script>
-        let portfolioData = JSON.parse(localStorage.getItem('sim_structured_portfolio_v3')) || {
-            stock: [
-                { ticker: 'QQQ', shares: 40, cost: 420, currentPrice: 440 },
-                { ticker: '510300.SS', shares: 2000, cost: 3.5, currentPrice: 3.8 },
-                { ticker: '0700.HK', shares: 100, cost: 350, currentPrice: 375 }
+        // 初始化多大类资产动态结构与历史净值快照
+        let portfolioData = JSON.parse(localStorage.getItem('sim_dynamic_portfolio_v1')) || {
+            categories: [
+                {
+                    id: 'stock',
+                    name: '📈 股票类（美股/A股/港股）',
+                    items: [
+                        { ticker: 'QQQ', shares: 40, cost: 420, price: 440 },
+                        { ticker: '510300.SS', shares: 2000, cost: 3.5, price: 3.8 }
+                    ]
+                },
+                {
+                    id: 'commodity',
+                    name: '🛢️ 大宗产品（黄金/石油）',
+                    items: [
+                        { ticker: 'GLD', shares: 15, cost: 210, price: 220 }
+                    ]
+                },
+                {
+                    id: 'crypto',
+                    name: '🪙 加密货币',
+                    items: [
+                        { ticker: 'BTC', shares: 0.1, cost: 60000, price: 65000 }
+                    ]
+                },
+                {
+                    id: 'cash',
+                    name: '💵 现金/固收类（独立算息）',
+                    isCash: true,
+                    items: [
+                        { ticker: '余额宝', principal: 50000, rate: 2.1 }
+                    ]
+                }
             ],
-            commodity: [
-                { ticker: 'GLD', shares: 15, cost: 210, currentPrice: 220 },
-                { ticker: 'USO', shares: 50, cost: 75, currentPrice: 73 }
-            ],
-            crypto: [
-                { ticker: 'BTC-USD', shares: 0.1, cost: 60000, currentPrice: 65000 },
-                { ticker: 'ETH-USD', shares: 1.5, cost: 3000, currentPrice: 3300 }
-            ],
-            cash: [
-                { ticker: '余额宝', principal: 50000, rate: 2.1 }
-            ]
+            historySnapshots: [] // 格式: [{time: '2026-09-25 13:30', value: 125000}]
         };
 
         let pieChart = null;
         let lineChart = null;
 
-        function renderTables() {
-            renderCategoryTable('stock', portfolioData.stock, 'stock-table-body');
-            renderCategoryTable('commodity', portfolioData.commodity, 'commodity-table-body');
-            renderCategoryTable('crypto', portfolioData.crypto, 'crypto-table-body');
-            renderCashTable();
-            calculateTotals();
-        }
+        function renderAll() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
 
-        function renderCategoryTable(category, items, tbodyId) {
-            const tbody = document.getElementById(tbodyId);
-            tbody.innerHTML = '';
-            items.forEach((item, index) => {
-                const curPrice = item.currentPrice || item.cost;
-                const marketVal = item.shares * curPrice;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="py-2.5 pr-2">
-                        <input type="text" value="${item.ticker}" id="${category}-ticker-${index}" 
-                               onblur="autoDetectAndFetch('${category}', ${index})" 
-                               onkeydown="if(event.key==='Enter') autoDetectAndFetch('${category}', ${index})"
-                               class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-indigo-300 font-bold uppercase focus:outline-none focus:border-indigo-500" title="输入代码后按回车或移开光标自动识别现价">
-                    </td>
-                    <td class="py-2.5 pr-2">
-                        <input type="number" step="any" value="${item.shares}" id="${category}-shares-${index}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </td>
-                    <td class="py-2.5 pr-2">
-                        <input type="number" step="any" value="${item.cost}" id="${category}-cost-${index}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </td>
-                    <td class="py-2.5 pr-2 text-xs text-slate-300" id="${category}-val-${index}">
-                        $${marketVal.toFixed(0)} <span class="text-[10px] text-indigo-400">($${curPrice.toFixed(2)})</span>
-                    </td>
-                    <td class="py-2.5 text-right">
-                        <button onclick="removeAssetRow('${category}', ${index})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">删除</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderCashTable() {
-            const tbody = document.getElementById('cash-table-body');
-            tbody.innerHTML = '';
-            portfolioData.cash.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="py-2.5 pr-2">
-                        <input type="text" value="${item.ticker}" id="cash-ticker-${index}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-emerald-300 font-bold focus:outline-none focus:border-emerald-500">
-                    </td>
-                    <td class="py-2.5 pr-2">
-                        <input type="number" step="any" value="${item.principal}" id="cash-principal-${index}" class="w-24 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500">
-                    </td>
-                    <td class="py-2.5 pr-2">
-                        <input type="number" step="any" value="${item.rate}" id="cash-rate-${index}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-emerald-400 focus:outline-none focus:border-emerald-500">
-                    </td>
-                    <td class="py-2.5 pr-2 text-xs text-emerald-400 font-medium" id="cash-val-${index}">
-                        $${item.principal.toFixed(0)} (年化${item.rate}%)
-                    </td>
-                    <td class="py-2.5 text-right">
-                        <button onclick="removeAssetRow('cash', ${index})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">删除</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function addAssetRow(category) {
-            if (category === 'cash') {
-                portfolioData.cash.push({ ticker: '零钱通', principal: 10000, rate: 1.8 });
-            } else if (category === 'stock') {
-                portfolioData.stock.push({ ticker: 'AAPL', shares: 10, cost: 180, currentPrice: 188 });
-            } else if (category === 'commodity') {
-                portfolioData.commodity.push({ ticker: 'SLV', shares: 50, cost: 25, currentPrice: 27 });
-            } else if (category === 'crypto') {
-                portfolioData.crypto.push({ ticker: 'SOL-USD', shares: 5, cost: 120, currentPrice: 140 });
-            }
-            renderTables();
-        }
-
-        function removeAssetRow(category, index) {
-            portfolioData[category].splice(index, 1);
-            renderTables();
-        }
-
-        // 行级智能识别与价格检索（双模穿透：优先尝试轻量在线接口，失败则通过特征库秒级赋能现价）
-        async function autoDetectAndFetch(category, index) {
-            const inputElem = document.getElementById(`${category}-ticker-${index}`);
-            if (!inputElem) return;
-            const input = inputElem.value.trim().toUpperCase();
-            if (!input) return;
-
-            // 更新内存中的代号
-            portfolioData[category][index].ticker = input;
-
-            // 常见资产的特征智能基准价（若无网络或接口跨域，以此确保体验丝滑流畅）
-            let basePrice = portfolioData[category][index].cost || 100;
-            if (input.includes('BTC')) basePrice = 65000;
-            else if (input.includes('ETH')) basePrice = 3300;
-            else if (input.includes('GLD') || input.includes('GOLD')) basePrice = 220;
-            else if (input === '600519') basePrice = 1450;
-            else if (input === '0700.HK') basePrice = 375;
-            else if (input === 'AAPL') basePrice = 188;
-            else if (input === 'TSLA') basePrice = 240;
-
-            // 尝试在线穿透抓取
-            let fetchedPrice = null;
-            let symbol = '';
-            if (/^\d{6}$/.test(input)) {                 symbol = (input.startsWith('6') ? 'sh' : 'sz') + input;             } else if (/^\d{5}$/.test(input)) {
-                symbol = 'hk' + input;
-            } else if (!input.includes('-')) {
-                symbol = 'gb_' + input.toLowerCase();
-            }
-
-            if (symbol) {
-                try {
-                    const response = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://hq.sinajs.cn/list=' + symbol)}`, {signal: AbortSignal.timeout(2500)});
-                    const text = await response.text();
-                    const match = text.match(/"([^"]*)"/);
-                    if (match && match[1]) {
-                        const fields = match[1].split(',');
-                        let p = symbol.startsWith('hk') ? parseFloat(fields[6]) : (symbol.startsWith('gb_') ? parseFloat(fields[1]) : parseFloat(fields[3]));
-                        if (p > 0) fetchedPrice = p;
-                    }
-                } catch (err) {
-                    // 忽略网络错误，静默切换至智能基准模型
+            portfolioData.categories.forEach((cat, catIndex) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl';
+                
+                let tableHeaders = '';
+                if (cat.isCash) {
+                    tableHeaders = `
+                        <th class="pb-2 font-medium w-32">账户名称</th>
+                        <th class="pb-2 font-medium">现金本金</th>
+                        <th class="pb-2 font-medium">预期年化(%)</th>
+                        <th class="pb-2 font-medium">当前价值</th>
+                        <th class="pb-2 font-medium text-right">操作</th>
+                    `;
+                } else {
+                    tableHeaders = `
+                        <th class="pb-2 font-medium w-28">代码/名称</th>
+                        <th class="pb-2 font-medium">持仓数量</th>
+                        <th class="pb-2 font-medium">买入成本</th>
+                        <th class="pb-2 font-medium">当前单价</th>
+                        <th class="pb-2 font-medium">当前市值</th>
+                        <th class="pb-2 font-medium text-right">操作</th>
+                    `;
                 }
-            }
 
-            portfolioData[category][index].currentPrice = fetchedPrice || basePrice;
-            saveAndRefresh();
-        }
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <input type="text" value="${cat.name}" onchange="updateCategoryName(${catIndex}, this.value)" 
+                                   class="bg-transparent text-sm font-bold text-slate-200 border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="addItemToCategory(${catIndex})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加标的</button>
+                            <button onclick="removeCategory(${catIndex})" class="text-xs text-rose-400 hover:text-rose-300 px-1.5 py-1 bg-rose-950/30 rounded border border-rose-900/50" title="删除整个板块">删除大类</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400">${tableHeaders}</tr>
+                            </thead>
+                            <tbody id="cat-tbody-${catIndex}" class="divide-y divide-slate-800/50"></tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(card);
 
-        function saveAndRefresh() {
-            ['stock', 'commodity', 'crypto'].forEach(cat => {
-                const rows = document.getElementById(`${cat}-table-body`).children;
-                for (let i = 0; i < rows.length; i++) {
-                    const ticker = document.getElementById(`${cat}-ticker-${i}`).value.trim().toUpperCase();
-                    const shares = Number(document.getElementById(`${cat}-shares-${i}`).value) || 0;
-                    const cost = Number(document.getElementById(`${cat}-cost-${i}`).value) || 0;
-                    portfolioData[cat][i].ticker = ticker;
-                    portfolioData[cat][i].shares = shares;
-                    portfolioData[cat][i].cost = cost;
-                    if (!portfolioData[cat][i].currentPrice) {
-                        portfolioData[cat][i].currentPrice = cost;
+                // 渲染行数据
+                const tbody = document.getElementById(`cat-tbody-${catIndex}`);
+                cat.items.forEach((item, itemIndex) => {
+                    const tr = document.createElement('tr');
+                    if (cat.isCash) {
+                        const val = item.principal;
+                        tr.innerHTML = `
+                            <td class="py-2.5 pr-2"><input type="text" value="${item.ticker}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-ticker" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-emerald-300 font-bold focus:outline-none focus:border-emerald-500"></td>
+                            <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.principal}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-principal" class="w-24 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500"></td>
+                            <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.rate}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-rate" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-emerald-400 focus:outline-none focus:border-emerald-500"></td>
+                            <td class="py-2.5 pr-2 text-xs text-emerald-400 font-medium" id="c-${catIndex}-i-${itemIndex}-val">$${val.toFixed(2)}</td>
+                            <td class="py-2.5 text-right"><button onclick="removeItem(${catIndex}, ${itemIndex})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">删除</button></td>
+                        `;
+                    } else {
+                        const curPrice = item.price !== undefined ? item.price : item.cost;
+                        const marketVal = item.shares * curPrice;
+                        tr.innerHTML = `
+                            <td class="py-2.5 pr-2"><input type="text" value="${item.ticker}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-ticker" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-indigo-300 font-bold uppercase focus:outline-none focus:border-indigo-500"></td>
+                            <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.shares}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-shares" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
+                            <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.cost}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-cost" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
+                            <td class="py-2.5 pr-2"><input type="number" step="any" value="${curPrice}" oninput="syncData()" id="c-${catIndex}-i-${itemIndex}-price" class="w-24 bg-slate-950 border border-indigo-900/80 rounded px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"></td>
+                            <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium" id="c-${catIndex}-i-${itemIndex}-val">$${marketVal.toFixed(2)}</td>
+                            <td class="py-2.5 text-right"><button onclick="removeItem(${catIndex}, ${itemIndex})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">删除</button></td>
+                        `;
                     }
-                }
+                    tbody.appendChild(tr);
+                });
             });
 
-            const cashRows = document.getElementById('cash-table-body').children;
-            for (let i = 0; i < cashRows.length; i++) {
-                const ticker = document.getElementById(`cash-ticker-${i}`).value.trim();
-                const principal = Number(document.getElementById(`cash-principal-${i}`).value) || 0;
-                const rate = Number(document.getElementById(`cash-rate-${i}`).value) || 0;
-                portfolioData.cash[i].ticker = ticker;
-                portfolioData.cash[i].principal = principal;
-                portfolioData.cash[i].rate = rate;
-            }
-
-            localStorage.setItem('sim_structured_portfolio_v3', JSON.stringify(portfolioData));
-            calculateTotals();
+            calculateTotalsAndRenderCharts();
         }
 
-        function calculateTotals() {
-            let totalVal = 0;
-            let totalCost = 0;
-            let categoryTotals = { '股票类': 0, '大宗产品': 0, '加密货币': 0, '现金类': 0 };
+        // 添加新大类资产板块弹窗/交互
+        function addNewCategoryModal() {
+            const name = prompt('请输入新大类资产板块名称（例如：债券类、期货衍生品、另类投资）：', '债券类');
+            if (!name) return;
+            const isCash = confirm('该大类是否为现金/固收类（按独立本金与年化收益计算）？\n点击【确定】为现金固收类，点击【取消】为标准持仓差价类。');
+            
+            const newCatId = 'cat_' + Date.now();
+            portfolioData.categories.push({
+                id: newCatId,
+                name: name,
+                isCash: isCash,
+                items: isCash ? [{ ticker: '国债逆回购', principal: 20000, rate: 2.0 }] : [{ ticker: 'NEW_ASSET', shares: 10, cost: 100, price: 105 }]
+            });
+            syncData();
+            renderAll();
+        }
 
-            ['stock', 'commodity', 'crypto'].forEach(cat => {
-                let catName = cat === 'stock' ? '股票类' : (cat === 'commodity' ? '大宗产品' : '加密货币');
-                portfolioData[cat].forEach((item, index) => {
-                    let curPrice = item.currentPrice || item.cost;
-                    let marketVal = item.shares * curPrice;
-                    let costVal = item.shares * item.cost;
+        function updateCategoryName(catIndex, newName) {
+            portfolioData.categories[catIndex].name = newName;
+            localStorage.setItem('sim_dynamic_portfolio_v1', JSON.stringify(portfolioData));
+        }
 
-                    totalVal += marketVal;
-                    totalCost += costVal;
-                    categoryTotals[catName] += marketVal;
+        function removeCategory(catIndex) {
+            if (confirm('确定要删除整个大类资产板块及其所有明细吗？')) {
+                portfolioData.categories.splice(catIndex, 1);
+                syncData();
+                renderAll();
+            }
+        }
 
-                    const valElem = document.getElementById(`${cat}-val-${index}`);
-                    if (valElem) {
-                        valElem.innerHTML = `$${marketVal.toFixed(0)} <span class="text-[10px] text-indigo-400">($${curPrice.toFixed(2)})</span>`;
+        function addItemToCategory(catIndex) {
+            const cat = portfolioData.categories[catIndex];
+            if (cat.isCash) {
+                cat.items.push({ ticker: '定期存款', principal: 10000, rate: 2.5 });
+            } else {
+                cat.items.push({ ticker: 'NEW', shares: 10, cost: 50, price: 50 });
+            }
+            syncData();
+            renderAll();
+        }
+
+        function removeItem(catIndex, itemIndex) {
+            portfolioData.categories[catIndex].items.splice(itemIndex, 1);
+            syncData();
+            renderAll();
+        }
+
+        // 同步输入框数据到内存并重新计算
+        function syncData() {
+            portfolioData.categories.forEach((cat, catIndex) => {
+                cat.items.forEach((item, itemIndex) => {
+                    const tickerElem = document.getElementById(`c-${catIndex}-i-${itemIndex}-ticker`);
+                    if (!tickerElem) return;
+                    item.ticker = tickerElem.value.trim();
+
+                    if (cat.isCash) {
+                        item.principal = Number(document.getElementById(`c-${catIndex}-i-${itemIndex}-principal`).value) || 0;
+                        item.rate = Number(document.getElementById(`c-${catIndex}-i-${itemIndex}-rate`).value) || 0;
+                        const val = item.principal;
+                        document.getElementById(`c-${catIndex}-i-${itemIndex}-val`).innerText = `$${val.toFixed(2)}`;
+                    } else {
+                        item.shares = Number(document.getElementById(`c-${catIndex}-i-${itemIndex}-shares`).value) || 0;
+                        item.cost = Number(document.getElementById(`c-${catIndex}-i-${itemIndex}-cost`).value) || 0;
+                        item.price = Number(document.getElementById(`c-${catIndex}-i-${itemIndex}-price`).value) || 0;
+                        const marketVal = item.shares * item.price;
+                        document.getElementById(`c-${catIndex}-i-${itemIndex}-val`).innerText = `$${marketVal.toFixed(2)}`;
                     }
                 });
             });
 
-            portfolioData.cash.forEach((item, index) => {
-                let marketVal = item.principal; 
-                totalVal += marketVal;
-                totalCost += marketVal;
-                categoryTotals['现金类'] += marketVal;
+            localStorage.setItem('sim_dynamic_portfolio_v1', JSON.stringify(portfolioData));
+            calculateTotalsAndRenderCharts();
+        }
 
-                const cashValElem = document.getElementById(`cash-val-${index}`);
-                if (cashValElem) {
-                    cashValElem.innerText = `$${marketVal.toFixed(0)} (年化${item.rate}%)`;
-                }
+        // 计算总览并绘制图表
+        function calculateTotalsAndRenderCharts() {
+            let totalVal = 0;
+            let totalCost = 0;
+            let categoryTotals = {};
+
+            portfolioData.categories.forEach(cat => {
+                let catVal = 0;
+                cat.items.forEach(item => {
+                    if (cat.isCash) {
+                        catVal += item.principal;
+                        totalCost += item.principal;
+                    } else {
+                        const curPrice = item.price !== undefined ? item.price : item.cost;
+                        catVal += item.shares * curPrice;
+                        totalCost += item.shares * item.cost;
+                    }
+                });
+                totalVal += catVal;
+                categoryTotals[cat.name] = catVal;
             });
 
             let totalProfit = totalVal - totalCost;
-            
+
             document.getElementById('total-portfolio-cost').innerText = `$${totalCost.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
             document.getElementById('total-portfolio-value').innerText = `$${totalVal.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
             
             const profitElem = document.getElementById('total-portfolio-profit');
             profitElem.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
-            profitElem.className = `text-base font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            profitElem.className = `text-sm font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
             renderCharts(categoryTotals, totalVal);
+        }
+
+        // 记录今日净值快照（带真实时间戳）
+        function recordDailySnapshot() {
+            let totalVal = 0;
+            portfolioData.categories.forEach(cat => {
+                cat.items.forEach(item => {
+                    if (cat.isCash) {
+                        totalVal += item.principal;
+                    } else {
+                        const curPrice = item.price !== undefined ? item.price : item.cost;
+                        totalVal += item.shares * curPrice;
+                    }
+                });
+            });
+
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            // 避免同一分钟重复追加
+            if (portfolioData.historySnapshots.length > 0 && portfolioData.historySnapshots[portfolioData.historySnapshots.length - 1].time.startsWith(timeStr.slice(0, 10))) {
+                portfolioData.historySnapshots[portfolioData.historySnapshots.length - 1] = { time: timeStr, value: totalVal };
+            } else {
+                portfolioData.historySnapshots.push({ time: timeStr, value: totalVal });
+            }
+
+            localStorage.setItem('sim_dynamic_portfolio_v1', JSON.stringify(portfolioData));
+            renderCharts(getCategoryTotalsForChart(), getTotalValForChart());
+            alert(`✅ 成功记录 ${timeStr} 的资产净值快照：$${totalVal.toFixed(2)}`);
+        }
+
+        function clearHistorySnapshots() {
+            if (confirm('确定要清空所有历史净值快照记录吗？')) {
+                portfolioData.historySnapshots = [];
+                localStorage.setItem('sim_dynamic_portfolio_v1', JSON.stringify(portfolioData));
+                calculateTotalsAndRenderCharts();
+            }
+        }
+
+        function getCategoryTotalsForChart() {
+            let res = {};
+            portfolioData.categories.forEach(cat => {
+                let v = 0;
+                cat.items.forEach(item => {
+                    v += cat.isCash ? item.principal : (item.shares * (item.price ?? item.cost));
+                });
+                res[cat.name] = v;
+            });
+            return res;
+        }
+
+        function getTotalValForChart() {
+            let t = 0;
+            portfolioData.categories.forEach(cat => {
+                cat.items.forEach(item => {
+                    t += cat.isCash ? item.principal : (item.shares * (item.price ?? item.cost));
+                });
+            });
+            return t;
         }
 
         function renderCharts(categoryTotals, totalVal) {
@@ -407,6 +383,7 @@
                 return `${label} (${pct}%)`;
             });
 
+            // 1. 饼图
             const ctxPie = document.getElementById('assetPieChart').getContext('2d');
             if (pieChart) pieChart.destroy();
             pieChart = new Chart(ctxPie, {
@@ -415,7 +392,7 @@
                     labels: formattedLabels,
                     datasets: [{
                         data: dataValues,
-                        backgroundColor: ['#6366f1', '#f59e0b', '#a855f7', '#10b981'],
+                        backgroundColor: ['#6366f1', '#f59e0b', '#a855f7', '#10b981', '#ec4899', '#38bdf8'],
                         borderWidth: 0
                     }]
                 },
@@ -431,20 +408,25 @@
                 }
             });
 
+            // 2. 真实时间戳折线图
+            const history = portfolioData.historySnapshots || [];
+            const timeLabels = history.length > 0 ? history.map(h => h.time) : ['初始建仓'];
+            const historyValues = history.length > 0 ? history.map(h => h.value) : [totalVal];
+
             const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
             lineChart = new Chart(ctxLine, {
                 type: 'line',
                 data: {
-                    labels: ['2023', '2024', '2025', '当前'],
+                    labels: timeLabels,
                     datasets: [{
-                        data: [totalVal * 0.82, totalVal * 0.90, totalVal * 0.95, totalVal],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        data: historyValues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.3,
-                        pointRadius: 2
+                        tension: 0.2,
+                        pointRadius: 3
                     }]
                 },
                 options: {
@@ -452,7 +434,7 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 5 } },
                         y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
                     }
                 }
@@ -460,7 +442,7 @@
         }
 
         window.onload = () => {
-            renderTables();
+            renderAll();
         };
     </script>
 </body>
