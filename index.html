@@ -3,293 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimPortfolio - 多资产分散投资回测实验室</title>
+    <title>SimPortfolio - 全球多资产持仓与净值追踪终端</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #f8fafc; color: #1e293b; padding: 20px; }
-        .container { max-width: 1050px; margin: 0 auto; background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
-        p.subtitle { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-        
-        .section-title { font-size: 13px; font-weight: 700; color: #475569; margin: 16px 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-bottom: 12px; }
-        
-        .control-group { background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        label { font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 4px; }
-        input[type="range"] { width: 100%; accent-color: #2563eb; cursor: pointer; height: 6px; }
-        
-        .config-bar { display: flex; gap: 16px; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .weight-badge { font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
-        .weight-normal { background: #dbeafe; color: #1e40af; }
-        .weight-warn { background: #fef3c7; color: #92400e; }
-        
-        .stats { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-card { flex: 1; min-width: 200px; background: #eff6ff; padding: 16px; border-radius: 8px; border: 1px solid #bfdbfe; }
-        .stat-card .title { font-size: 12px; color: #1e40af; font-weight: 600; }
-        .stat-card .value { font-size: 22px; font-weight: 700; color: #1d4ed8; margin-top: 4px; }
-        
-        .chart-container { position: relative; height: 380px; width: 100%; }
-        .cash-config { background: #fdf4ff; border: 1px solid #f5d0fe; }
-    </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
 
-<div class="container">
-    <h1>SimPortfolio</h1>
-    <p class="subtitle">多资产分散投资回测实验室 —— 自由搭配全球大类资产与加密货币，测试不同配置的穿越周期能力</p>
-
-    <div class="config-bar">
-        <div>
-            <span style="font-size: 13px; font-weight: 600; color: #475569;">当前总权重: </span>
-            <span id="total-weight-badge" class="weight-badge weight-normal">100%</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <label style="margin:0; font-size: 12px;">现金年化收益率(%):</label>
-                <input type="number" id="cash-apy" value="2.5" step="0.1" min="0" max="20" oninput="updatePortfolio()" style="width: 65px; padding: 4px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px;">
+    <!-- 顶部导航 -->
+    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span class="text-indigo-400 text-sm ml-2 font-normal">全球资产账本终端</span></span>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <label style="margin:0; font-size: 12px;">计价基准：</label>
-                <select id="currency" onchange="updatePortfolio()" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px;">
-                    <option value="USD">美元 (USD)</option>
-                    <option value="CNY">人民币 (CNY - 含汇率折算)</option>
-                </select>
+            <div class="text-xs text-slate-400">
+                支持：美股 / 港股 / A股 / ETF / 黄金 / 比特币 / 现金(余额宝)
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- 现金与固收板块 -->
-    <div class="section-title">💵 现金管理与固收安全垫</div>
-    <div class="grid">
-        <div class="control-group cash-config">
-            <label>自定义现金理财 (如余额宝/货基): <span id="val-cash">10%</span></label>
-            <input type="range" id="slider-cash" min="0" max="100" value="10" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>长期美债 (TLT): <span id="val-tlt">10%</span></label>
-            <input type="range" id="slider-tlt" min="0" max="100" value="10" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>中期美债 (IEF): <span id="val-ief">10%</span></label>
-            <input type="range" id="slider-ief" min="0" max="100" value="10" oninput="updatePortfolio()">
-        </div>
-    </div>
-
-    <!-- 权益与科技板块 -->
-    <div class="section-title">📈 权益与科技成长市场</div>
-    <div class="grid">
-        <div class="control-group">
-            <label>美股全市场 (VTI): <span id="val-vti">20%</span></label>
-            <input type="range" id="slider-vti" min="0" max="100" value="20" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>标普500大盘 (SPY): <span id="val-spy">10%</span></label>
-            <input type="range" id="slider-spy" min="0" max="100" value="10" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>纳斯达克100科技 (QQQ): <span id="val-qqq">10%</span></label>
-            <input type="range" id="slider-qqq" min="0" max="100" value="10" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>股息红利价值 (SCHD): <span id="val-schd">5%</span></label>
-            <input type="range" id="slider-schd" min="0" max="100" value="5" oninput="updatePortfolio()">
-        </div>
-    </div>
-
-    <!-- 全球市场与另类资产 -->
-    <div class="section-title">🌐 全球市场、大宗商品与加密资产</div>
-    <div class="grid">
-        <div class="control-group">
-            <label>美国房地产 (VNQ): <span id="val-vnq">5%</span></label>
-            <input type="range" id="slider-vnq" min="0" max="100" value="5" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>发达国家海外 (VEA): <span id="val-vea">5%</span></label>
-            <input type="range" id="slider-vea" min="0" max="100" value="5" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>新兴市场 (VWO): <span id="val-vwo">5%</span></label>
-            <input type="range" id="slider-vwo" min="0" max="100" value="5" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>黄金 (GLD): <span id="val-gld">5%</span></label>
-            <input type="range" id="slider-gld" min="0" max="100" value="5" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group">
-            <label>大宗商品一揽子 (DBC): <span id="val-dbc">5%</span></label>
-            <input type="range" id="slider-dbc" min="0" max="100" value="5" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group" style="background: #faf5ff; border: 1px solid #e9d5ff;">
-            <label>比特币 (BTC): <span id="val-btc">0%</span></label>
-            <input type="range" id="slider-btc" min="0" max="100" value="0" oninput="updatePortfolio()">
-        </div>
-        <div class="control-group" style="background: #faf5ff; border: 1px solid #e9d5ff;">
-            <label>以太坊 (ETH): <span id="val-eth">0%</span></label>
-            <input type="range" id="slider-eth" min="0" max="100" value="0" oninput="updatePortfolio()">
-        </div>
-    </div>
-
-    <div class="stats" style="margin-top: 20px;">
-        <div class="stat-card">
-            <div class="title">累计总收益率 (2021-至今)</div>
-            <div class="value" id="total-return">+0.00%</div>
-        </div>
-        <div class="stat-card">
-            <div class="title">最大历史回撤 (Max Drawdown)</div>
-            <div class="value" id="max-drawdown" style="color: #dc2626;">-0.00%</div>
-        </div>
-    </div>
-
-    <div class="chart-container">
-        <canvas id="portfolioChart"></canvas>
-    </div>
-</div>
-
-<script>
-    // 15大类资产历史净值模拟数据 (2021-Q1 至 2024-Q3，共8个周期节点)
-    const mockData = {
-        years: ['2021-Q1', '2021-Q3', '2022-Q1', '2022-Q3', '2023-Q1', '2023-Q3', '2024-Q1', '2024-Q3'],
-        vti:   [100, 114, 108, 93,  103, 116, 128, 140],
-        spy:   [100, 115, 110, 95,  105, 118, 130, 142],
-        qqq:   [100, 118, 105, 82,  98,  122, 145, 160],
-        schd:  [100, 108, 106, 92,  99,  104, 112, 120],
-        vnq:   [100, 112, 114, 88,  95,   92,  98, 105],
-        tlt:   [100, 102, 88,  75,  78,   70,  68,  72],
-        ief:   [100, 100, 93,  86,  89,   85,  84,  87],
-        vea:   [100, 105, 98,  85,  92,   96, 102, 108],
-        vwo:   [100, 98,  92,  78,  82,   80,  83,  88],
-        gld:   [100, 102, 112, 108, 115, 120, 135, 150],
-        dbc:   [100, 115, 135, 120, 125, 130, 128, 132],
-        btc:   [100, 140, 120, 60,  80,  110, 180, 220],
-        eth:   [100, 155, 135, 55,  75,  100, 170, 210],
-        usdToCny: [6.5, 6.47, 6.36, 7.10, 6.87, 7.30, 7.20, 7.12]
-    };
-
-    let chart;
-
-    function initChart() {
-        const ctx = document.getElementById('portfolioChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: mockData.years,
-                datasets: [{
-                    label: '多资产分散组合收益轨迹',
-                    data: [],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                    fill: true,
-                    tension: 0.3,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' } },
-                scales: { y: { beginAtZero: false } }
-            }
-        });
-        updatePortfolio();
-    }
-
-    function updatePortfolio() {
-        const getVal = id => parseInt(document.getElementById(id).value) || 0;
+    <!-- 主体内容区 -->
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        const weights = {
-            cash: getVal('slider-cash'),
-            tlt: getVal('slider-tlt'),
-            ief: getVal('slider-ief'),
-            vti: getVal('slider-vti'),
-            spy: getVal('slider-spy'),
-            qqq: getVal('slider-qqq'),
-            schd: getVal('slider-schd'),
-            vnq: getVal('slider-vnq'),
-            vea: getVal('slider-vea'),
-            vwo: getVal('slider-vwo'),
-            gld: getVal('slider-gld'),
-            dbc: getVal('slider-dbc'),
-            btc: getVal('slider-btc'),
-            eth: getVal('slider-eth')
-        };
+        <!-- 左侧：持仓明细录入 (7列) -->
+        <section class="lg:col-span-7 space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-slate-200">资产持仓明细账本</h2>
+                    <div class="space-x-2">
+                        <button onclick="addHoldingRow('stock')" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition shadow">
+                            + 添加投资品
+                        </button>
+                        <button onclick="addHoldingRow('cash')" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition shadow">
+                            + 添加现金/余额宝
+                        </button>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">提示：输入 <span class="text-emerald-400 font-bold">CASH</span> 代码时，数量代表现金总额，成本列代表<span class="text-emerald-400 font-bold">预期年化收益率(%)</span>。</p>
 
-        const sumWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+                <!-- 持仓表格 -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 text-xs">
+                                <th class="pb-3 font-medium">资产代码 (Ticker)</th>
+                                <th class="pb-3 font-medium">持股数量 / 现金金额</th>
+                                <th class="pb-3 font-medium">成本价 / 年化收益率(%)</th>
+                                <th class="pb-3 font-medium">现价 / 状态</th>
+                                <th class="pb-3 font-medium text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdings-table-body" class="divide-y divide-slate-800/60">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
 
-        for (let key in weights) {
-            document.getElementById('val-' + key).innerText = weights[key] + '%';
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="saveAndRefresh()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2 rounded-xl transition shadow">
+                        保存并更新市值
+                    </button>
+                    <span class="text-xs text-slate-500">数据自动保存在本地浏览器中</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 右侧：资产总览与大类分布看板 (5列) -->
+        <section class="lg:col-span-5 space-y-6">
+            <!-- 核心统计卡片 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <h3 class="text-sm font-semibold text-slate-300">资产总览看板</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                        <span class="text-xs text-slate-400 block mb-1">总资产净值</span>
+                        <span id="total-portfolio-value" class="text-xl font-bold text-white">$0.00</span>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                        <span class="text-xs text-slate-400 block mb-1">总盈亏金额</span>
+                        <span id="total-portfolio-profit" class="text-xl font-bold text-emerald-400">+$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资产配比图表 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-base font-semibold text-slate-200 mb-4">大类资产分布比例</h3>
+                <div class="relative h-[260px] w-full flex items-center justify-center">
+                    <canvas id="assetPieChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 核心逻辑脚本 -->
+    <script>
+        // 默认初始持仓范例（含股票、A股ETF、黄金、比特币、现金理财）
+        let holdings = JSON.parse(localStorage.getItem('sim_holdings')) || [
+            { ticker: 'QQQ', shares: 50, cost: 420 },
+            { ticker: '510300.SS', shares: 2000, cost: 3.5 },
+            { ticker: 'GLD', shares: 20, cost: 210 },
+            { ticker: 'BTC-USD', shares: 0.1, cost: 60000 },
+            { ticker: 'CASH', shares: 50000, cost: 2.3 } // 余额宝类现金：5万本金，年化2.3%
+        ];
+
+        let pieChart = null;
+
+        function renderTable() {
+            const tbody = document.getElementById('holdings-table-body');
+            tbody.innerHTML = '';
+            holdings.forEach((item, index) => {
+                const isCash = item.ticker.toUpperCase() === 'CASH';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-3 pr-2">
+                        <input type="text" value="${item.ticker}" id="ticker-${index}" class="w-28 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-indigo-300 font-bold uppercase focus:outline-none focus:border-indigo-500">
+                    </td>
+                    <td class="py-3 pr-2">
+                        <input type="number" step="any" value="${item.shares}" id="shares-${index}" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500" title="${isCash ? '现金总金额' : '持股数量'}">
+                    </td>
+                    <td class="py-3 pr-2">
+                        <input type="number" step="any" value="${item.cost}" id="cost-${index}" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500" title="${isCash ? '预期年化收益率(%)' : '平均成本价'}">
+                    </td>
+                    <td class="py-3 pr-2 text-xs text-slate-400">
+                        计算中...
+                    </td>
+                    <td class="py-3 text-right">
+                        <button onclick="removeRow(${index})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/30 rounded border border-rose-900/50">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            calculatePortfolio();
         }
 
-        const badge = document.getElementById('total-weight-badge');
-        if (sumWeight !== 100) {
-            badge.className = 'weight-badge weight-warn';
-            badge.innerText = sumWeight + '% (未满100%将自动按比例归一化)';
-        } else {
-            badge.className = 'weight-badge weight-normal';
-            badge.innerText = '100% (完美)';
+        function addHoldingRow(type) {
+            if (type === 'cash') {
+                holdings.push({ ticker: 'CASH', shares: 10000, cost: 2.0 });
+            } else {
+                holdings.push({ ticker: 'AAPL', shares: 10, cost: 150 });
+            }
+            renderTable();
         }
 
-        // 获取用户输入的现金年化收益率 (比如 2.5% 转换为复利累加)
-        const cashApy = parseFloat(document.getElementById('cash-apy').value) || 0;
-        const cashValues = mockData.years.map((_, i) => {
-            // 假设每半年为一个周期节点，按复利计算
-            return parseFloat((100 * Math.pow(1 + cashApy / 100, i * 0.5)).toFixed(2));
-        });
+        function removeRow(index) {
+            holdings.splice(index, 1);
+            renderTable();
+        }
 
-        const isCny = document.getElementById('currency').value === 'CNY';
+        function saveAndRefresh() {
+            holdings = [];
+            const rows = document.getElementById('holdings-table-body').children;
+            for (let i = 0; i < rows.length; i++) {
+                const ticker = document.getElementById(`ticker-${i}`).value.trim();
+                const shares = Number(document.getElementById(`shares-${i}`).value) || 0;
+                const cost = Number(document.getElementById(`cost-${i}`).value) || 0;
+                holdings.push({ ticker, shares, cost });
+            }
+            localStorage.setItem('sim_holdings', JSON.stringify(holdings));
+            calculatePortfolio();
+        }
 
-        const portfolioValues = mockData.years.map((_, i) => {
-            const total = sumWeight > 0 ? sumWeight : 1;
+        function calculatePortfolio() {
+            let totalVal = 0;
+            let totalCost = 0;
+            let labels = [];
+            let values = [];
+
+            holdings.forEach((item, index) => {
+                let marketVal = 0;
+                let costVal = 0;
+                let displayInfo = '';
+
+                const isCash = item.ticker.toUpperCase() === 'CASH';
+
+                if (isCash) {
+                    // 现金类：本金即市值，成本列代表预期年化收益率
+                    marketVal = item.shares; 
+                    costVal = item.shares;
+                    displayInfo = `<span class="text-emerald-400 font-medium">现金理财 (年化 ${item.cost}%)</span>`;
+                } else {
+                    // 投资品类：模拟现价（后续可替换为真实行情 API）
+                    let estimatedPrice = item.cost * (1 + (Math.sin(index + 1) * 0.15)); 
+                    marketVal = item.shares * estimatedPrice;
+                    costVal = item.shares * item.cost;
+                    displayInfo = `
+                        <span class="text-white font-medium">$${estimatedPrice.toFixed(2)}</span>
+                        <span class="block text-[10px] text-indigo-400">市值: $${marketVal.toFixed(0)}</span>
+                    `;
+                }
+
+                totalVal += marketVal;
+                totalCost += costVal;
+
+                labels.push(item.ticker);
+                values.push(Math.round(marketVal));
+
+                const row = document.getElementById('holdings-table-body').children[index];
+                if (row) {
+                    row.children[3].innerHTML = displayInfo;
+                }
+            });
+
+            let totalProfit = totalVal - totalCost;
+            document.getElementById('total-portfolio-value').innerText = `$${totalVal.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
             
-            // 计算加权总净值
-            let weightedSum = 
-                (cashValues[i] * (weights.cash / total)) +
-                (mockData.tlt[i] * (weights.tlt / total)) +
-                (mockData.ief[i] * (weights.ief / total)) +
-                (mockData.vti[i] * (weights.vti / total)) +
-                (mockData.spy[i] * (weights.spy / total)) +
-                (mockData.qqq[i] * (weights.qqq / total)) +
-                (mockData.schd[i] * (weights.schd / total)) +
-                (mockData.vnq[i] * (weights.vnq / total)) +
-                (mockData.vea[i] * (weights.vea / total)) +
-                (mockData.vwo[i] * (weights.vwo / total)) +
-                (mockData.gld[i] * (weights.gld / total)) +
-                (mockData.dbc[i] * (weights.dbc / total)) +
-                (mockData.btc[i] * (weights.btc / total)) +
-                (mockData.eth[i] * (weights.eth / total));
+            const profitElem = document.getElementById('total-portfolio-profit');
+            profitElem.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
+            profitElem.className = `text-xl font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            // 汇率折算处理
-            const rate = mockData.usdToCny[i];
-            let finalVal = weightedSum;
-            if (isCny) {
-                // 如果选择人民币基准，将整体美元资产趋势按当期汇率折算
-                finalVal = weightedSum * (rate / mockData.usdToCny[0]);
-            }
-
-            return parseFloat(finalVal.toFixed(2));
-        });
-
-        chart.data.datasets[0].data = portfolioValues;
-        chart.update();
-
-        // 统计指标计算
-        const startVal = portfolioValues[0];
-        const endVal = portfolioValues[portfolioValues.length - 1];
-        const totalReturn = (((endVal - startVal) / startVal) * 100).toFixed(2);
-        document.getElementById('total-return').innerText = (totalReturn >= 0 ? '+' : '') + totalReturn + '%';
-        
-        let maxPeak = portfolioValues[0];
-        let maxDD = 0;
-        for (let val of portfolioValues) {
-            if (val > maxPeak) maxPeak = val;
-            let dd = (val - maxPeak) / maxPeak;
-            if (dd < maxDD) maxDD = dd;
+            renderPieChart(labels, values);
         }
-        document.getElementById('max-drawdown').innerText = (maxDD * 100).toFixed(2) + '%';
-    }
 
-    window.onload = initChart;
-</script>
+        function renderPieChart(labels, data) {
+            const ctx = document.getElementById('assetPieChart').getContext('2d');
+            if (pieChart) {
+                pieChart.destroy();
+            }
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#6366f1', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#14b8a6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 12 } }
+                    }
+                }
+            });
+        }
 
+        window.onload = () => {
+            renderTable();
+        };
+    </script>
 </body>
 </html>
