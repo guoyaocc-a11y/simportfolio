@@ -92,21 +92,25 @@
 
     <!-- 核心脚本 -->
     <script>
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v1')) || {
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v2')) || {
             rates: { usd: 7.25, hkd: 0.93 },
             categories: [
                 {
-                    name: '📈 港美股资产',
+                    name: '📈 股票类资产',
                     items: [
-                        { ticker: 'AAPL', currency: 'USD', shares: 20, cost: 175, price: 185 },
-                        { ticker: '腾讯00700', currency: 'HKD', shares: 400, cost: 350, price: 380 }
+                        { ticker: '泡泡玛特09992', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }
                     ]
                 },
                 {
-                    name: '🪙 加密与A股',
+                    name: '🪙 加密货币',
                     items: [
-                        { ticker: 'BTC', currency: 'USD', shares: 0.1, cost: 60000, price: 65000 },
-                        { ticker: '茅台600519', currency: 'CNY', shares: 100, cost: 1500, price: 1600 }
+                        { ticker: 'BTC', currency: 'USD', shares: 0.155, cost: 79644.5, price: 83940.8 }
+                    ]
+                },
+                {
+                    name: '🥇 大宗类',
+                    items: [
+                        { ticker: '黄金518850', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }
                     ]
                 }
             ],
@@ -253,7 +257,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v1', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v2', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -303,7 +307,7 @@
                 portfolio.history.push({ time: timeStr, value: totalValCNY });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v1', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v2', JSON.stringify(portfolio));
             calculate();
             alert(`✅ 已记录收盘人民币快照 (${timeStr})：¥${totalValCNY.toFixed(2)}`);
         }
@@ -311,7 +315,7 @@
         function clearHistory() {
             if (confirm('确定清空所有历史快照吗？')) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v1', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v2', JSON.stringify(portfolio));
                 calculate();
             }
         }
