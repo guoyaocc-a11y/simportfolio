@@ -96,7 +96,7 @@
 
     <!-- Core Script -->
     <script>
-        // Multi-language Dictionaries
+        // Multi-language Dictionaries (Comprehensive)
         const i18n = {
             zh: {
                 pageTitle: "SimPortfolio - 全球私人资产多币种终端",
@@ -174,7 +174,6 @@
             }
         };
 
-        // If stored language is English, make sure default categories align if they were never modified, or map them dynamically
         let currentLang = localStorage.getItem('sim_lang') || 'en';
 
         let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v6')) || {
@@ -195,7 +194,7 @@
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             localStorage.setItem('sim_lang', currentLang);
 
-            // Translate default category headers automatically if they match default names
+            // Automatically sync default category headers when switching language
             portfolio.categories.forEach(cat => {
                 if (oldLang === 'zh' && cat.name === '📈 股票类资产') cat.name = '📈 Equities';
                 else if (oldLang === 'en' && cat.name === '📈 Equities') cat.name = '📈 股票类资产';
@@ -217,6 +216,7 @@
             document.getElementById('nav-subtitle').innerText = t.navSubtitle;
             document.getElementById('lang-btn').innerText = t.langBtn;
             
+            // Batch update all elements with data-i18n attribute (including right panel titles, buttons, etc.)
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.innerText = t[key];
