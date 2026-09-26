@@ -138,7 +138,7 @@
                 btnRemoveCat: "删除板块",
                 btnAddItem: "+ 添加标的",
                 promptCat: "请输入新大类名称：",
-                promptCatDefault: "海外大类",
+                promptCatDefault: "自选资产大类",
                 confirmDelCat: "确定删除该大类及所有明细吗？",
                 confirmClearHist: "确定清空所有历史快照吗？",
                 alertSnapshot: "✅ 已记录收盘快照",
@@ -147,15 +147,15 @@
                 currencySymbol: "¥",
                 defaultCategories: [
                     { 
-                        name: '📈 股票类资产', 
+                        name_zh: '📈 股票类资产', name_en: '📈 Equities',
                         items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
                     },
                     { 
-                        name: '🪙 加密货币与合约', 
+                        name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
                         items: [{ ticker: '比特币 (BTC)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
                     },
                     { 
-                        name: '🥇 大宗类', 
+                        name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
                         items: [{ ticker: '黄金 (GOLD518850)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
                     }
                 ]
@@ -187,7 +187,7 @@
                 btnRemoveCat: "Remove",
                 btnAddItem: "+ Add Asset",
                 promptCat: "Enter new category name:",
-                promptCatDefault: "Global Assets",
+                promptCatDefault: "Custom Assets",
                 confirmDelCat: "Are you sure to delete this category?",
                 confirmClearHist: "Are you sure to clear all history snapshots?",
                 alertSnapshot: "✅ Recorded USD snapshot",
@@ -196,15 +196,15 @@
                 currencySymbol: "$",
                 defaultCategories: [
                     { 
-                        name: '📈 Equities', 
+                        name_zh: '📈 股票类资产', name_en: '📈 Equities',
                         items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
                     },
                     { 
-                        name: '🪙 Crypto & Futures', 
+                        name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
                         items: [{ ticker: 'BTC (比特币)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
                     },
                     { 
-                        name: '🥇 Commodities', 
+                        name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
                         items: [{ ticker: 'GOLD518850 (黄金)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
                     }
                 ]
@@ -213,7 +213,7 @@
 
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
 
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v9')) || {
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v10')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
@@ -227,22 +227,8 @@
         let netProfitChart = null;
 
         function toggleLanguage() {
-            const oldLang = currentLang;
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             localStorage.setItem('sim_lang', currentLang);
-
-            portfolio.categories.forEach(cat => {
-                if (oldLang === 'zh') {
-                    if (cat.name === '📈 股票类资产') cat.name = '📈 Equities';
-                    else if (cat.name === '🪙 加密货币与合约') cat.name = '🪙 Crypto & Futures';
-                    else if (cat.name === '🥇 大宗类') cat.name = '🥇 Commodities';
-                } else {
-                    if (cat.name === '📈 Equities') cat.name = '📈 股票类资产';
-                    else if (cat.name === '🪙 Crypto & Futures') cat.name = '🪙 加密货币与合约';
-                    else if (cat.name === '🥇 Commodities') cat.name = '🥇 大宗类';
-                }
-            });
-
             saveData();
             render();
         }
@@ -265,13 +251,11 @@
             saveData();
         }
 
-        // 获取折算基准倍数：内部计算统一为CNY，如果当前是英文版，再除以 USD汇率 转换为USD
         function getMultiplier(currency) {
             let multCNY = 1;
             if (currency === 'USD') multCNY = portfolio.rates.usd;
             if (currency === 'HKD') multCNY = portfolio.rates.hkd;
             
-            // 如果是英文模式，最终以USD计价（将CNY金额除以USD/CNY汇率）
             if (currentLang === 'en') {
                 return multCNY / portfolio.rates.usd;
             }
@@ -285,11 +269,14 @@
             container.innerHTML = '';
 
             portfolio.categories.forEach((cat, catIdx) => {
+                // 根据当前语言获取大类名称
+                const catName = currentLang === 'en' ? (cat.name_en || cat.name_zh || 'Assets') : (cat.name_zh || cat.name_en || '资产大类');
+
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl';
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-3">
-                        <input type="text" value="${cat.name}" onchange="updateCatName(${catIdx}, this.value)" 
+                        <input type="text" value="${catName}" onchange="updateCatName(${catIdx}, this.value)" 
                                class="bg-transparent text-sm font-bold text-slate-200 border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1">
                         <div class="flex space-x-2">
                             <button onclick="addItem(${catIdx})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">${t.btnAddItem}</button>
@@ -347,13 +334,25 @@
             const t = i18n[currentLang];
             const name = prompt(t.promptCat, t.promptCatDefault);
             if (!name) return;
-            portfolio.categories.push({ name: name, items: [{ ticker: 'NEW ASSET', currency: 'USD', shares: 10, cost: 100, price: 100 }] });
+            
+            // 根据当前界面语言，新加的资产大类初始数量、成本、单价全为 0，货币单位跟随当前界面（中文为CNY，英文为USD）
+            const defaultCurrency = currentLang === 'en' ? 'USD' : 'CNY';
+
+            portfolio.categories.push({ 
+                name_zh: currentLang === 'zh' ? name : name, 
+                name_en: currentLang === 'en' ? name : name, 
+                items: [{ ticker: currentLang === 'en' ? 'NEW ASSET' : '新标的', currency: defaultCurrency, shares: 0, cost: 0, price: 0 }] 
+            });
             saveData();
             render();
         }
 
         function updateCatName(catIdx, val) {
-            portfolio.categories[catIdx].name = val;
+            if (currentLang === 'en') {
+                portfolio.categories[catIdx].name_en = val;
+            } else {
+                portfolio.categories[catIdx].name_zh = val;
+            }
             saveData();
         }
 
@@ -367,7 +366,15 @@
         }
 
         function addItem(catIdx) {
-            portfolio.categories[catIdx].items.push({ ticker: 'NEW', currency: 'USD', shares: 10, cost: 50, price: 50 });
+            // 新增小类时，各项数值设为0，货币单位跟随当前界面自动匹配
+            const defaultCurrency = currentLang === 'en' ? 'USD' : 'CNY';
+            portfolio.categories[catIdx].items.push({ 
+                ticker: currentLang === 'en' ? 'NEW' : '新标的', 
+                currency: defaultCurrency, 
+                shares: 0, 
+                cost: 0, 
+                price: 0 
+            });
             saveData();
             render();
         }
@@ -404,7 +411,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v9', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v10', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -422,7 +429,10 @@
                     totalCost += item.shares * item.cost * rate;
                 });
                 totalVal += cVal;
-                catTotals[cat.name] = cVal;
+                
+                // 统计图表用的分类标签名称
+                const catName = currentLang === 'en' ? (cat.name_en || cat.name_zh) : (cat.name_zh || cat.name_en);
+                catTotals[catName] = cVal;
             });
 
             let totalProfit = totalVal - totalCost;
@@ -463,7 +473,7 @@
                 portfolio.history.push({ time: timeStr, value: totalVal, netProfit: netProfit });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v9', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v10', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
@@ -473,7 +483,7 @@
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v9', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v10', JSON.stringify(portfolio));
                 calculate();
             }
         }
