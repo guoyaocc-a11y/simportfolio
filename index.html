@@ -51,26 +51,26 @@
             <!-- Statistics & Snapshot -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-slate-300" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
+                    <h3 class="text-sm font-semibold text-slate-300" id="overview-title-text" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
                     <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshotBtn">
                         📸 记录今日收盘净值
                     </button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelCost">初始总投入 (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" id="label-cost-text" data-i18n="labelCost">初始总投入 (¥)</span>
                         <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelValue">当前总净值 (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" id="label-value-text" data-i18n="labelValue">当前总净值 (¥)</span>
                         <span id="total-value" class="text-sm font-bold text-white">¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" id="label-profit-text" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
                         <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield">资金总收益率 (%)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield" id="label-yield-text">资金总收益率 (%)</span>
                         <span id="total-yield" class="text-sm font-bold text-emerald-400">+0.00%</span>
                     </div>
                 </div>
@@ -78,16 +78,16 @@
 
             <!-- Pie Chart -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-sm font-semibold text-slate-200 mb-3" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
+                <h3 class="text-sm font-semibold text-slate-200 mb-3" id="pie-title-text" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
                 <div class="relative h-[180px] w-full flex items-center justify-center">
                     <canvas id="assetPieChart"></canvas>
                 </div>
             </div>
 
-            <!-- Line Chart: Absolute Value -->
+            <!-- Line Chart: Total Asset Value -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-slate-200" data-i18n="lineTitle">历史净值成长曲线 (人民币)</h3>
+                    <h3 class="text-sm font-semibold text-slate-200" id="line-title-text" data-i18n="lineTitle">总资产金额成长曲线 (人民币)</h3>
                     <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">清空历史记录</button>
                 </div>
                 <div class="relative h-[150px] w-full flex items-center justify-center">
@@ -95,13 +95,13 @@
                 </div>
             </div>
 
-            <!-- Line Chart: Yield Rate (%) -->
+            <!-- Line Chart: Net Profit Amount -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-slate-200" data-i18n="yieldLineTitle">历史资产收益率曲线 (%)</h3>
+                    <h3 class="text-sm font-semibold text-slate-200" id="net-profit-title-text" data-i18n="netProfitTitle">历史净收益曲线 (人民币)</h3>
                 </div>
                 <div class="relative h-[150px] w-full flex items-center justify-center">
-                    <canvas id="portfolioYieldChart"></canvas>
+                    <canvas id="portfolioNetProfitChart"></canvas>
                 </div>
             </div>
         </section>
@@ -124,8 +124,8 @@
                 labelProfit: "总浮动盈亏 (¥)",
                 labelYield: "资金总收益率 (%)",
                 pieTitle: "大类资产配置比例 (按人民币市值)",
-                lineTitle: "历史净值成长曲线 (人民币)",
-                yieldLineTitle: "历史资产收益率曲线 (%)",
+                lineTitle: "总资产金额成长曲线 (人民币)",
+                netProfitTitle: "历史净收益曲线 (人民币)",
                 clearHistory: "清空历史记录",
                 thTicker: "代码/说明",
                 thCurrency: "币种",
@@ -141,9 +141,10 @@
                 promptCatDefault: "海外大类",
                 confirmDelCat: "确定删除该大类及所有明细吗？",
                 confirmClearHist: "确定清空所有历史快照吗？",
-                alertSnapshot: "✅ 已记录收盘人民币快照",
+                alertSnapshot: "✅ 已记录收盘快照",
                 initBase: "初始成本基准",
                 latest: "当前最新",
+                currencySymbol: "¥",
                 defaultCategories: [
                     { 
                         name: '📈 股票类资产', 
@@ -161,26 +162,26 @@
             },
             en: {
                 pageTitle: "SimPortfolio - Global Private Asset Multi-Currency Terminal",
-                navSubtitle: "Multi-Currency Terminal (Converted to CNY)",
+                navSubtitle: "Multi-Currency Terminal (Converted to USD)",
                 langBtn: "切换至中文",
                 rateLabel: "💱 Rates:",
                 addCategory: "+ Add Category",
-                overviewTitle: "Portfolio Overview & Snapshot (Converted to CNY)",
+                overviewTitle: "Portfolio Overview & Snapshot (Converted to USD)",
                 snapshotBtn: "📸 Record Today's Snapshot",
-                labelCost: "Initial Cost (¥)",
-                labelValue: "Current Value (¥)",
-                labelProfit: "Total Profit/Loss (¥)",
+                labelCost: "Initial Cost ($)",
+                labelValue: "Current Value ($)",
+                labelProfit: "Total Profit/Loss ($)",
                 labelYield: "Total Yield Rate (%)",
-                pieTitle: "Asset Allocation (By CNY Market Value)",
-                lineTitle: "Historical Value Growth Curve (CNY)",
-                yieldLineTitle: "Historical Yield Rate Curve (%)",
+                pieTitle: "Asset Allocation (By USD Market Value)",
+                lineTitle: "Total Asset Value Curve (USD)",
+                netProfitTitle: "Historical Net Profit Curve (USD)",
                 clearHistory: "Clear History",
                 thTicker: "Ticker/Name",
                 thCurrency: "Currency",
                 thShares: "Shares",
                 thCost: "Cost Price",
                 thPrice: "Current Price",
-                thValue: "Value (¥)",
+                thValue: "Value ($)",
                 thAction: "Action",
                 btnDelete: "Delete",
                 btnRemoveCat: "Remove",
@@ -189,9 +190,10 @@
                 promptCatDefault: "Global Assets",
                 confirmDelCat: "Are you sure to delete this category?",
                 confirmClearHist: "Are you sure to clear all history snapshots?",
-                alertSnapshot: "✅ Recorded CNY snapshot",
+                alertSnapshot: "✅ Recorded USD snapshot",
                 initBase: "Initial Cost Base",
                 latest: "Latest",
+                currencySymbol: "$",
                 defaultCategories: [
                     { 
                         name: '📈 Equities', 
@@ -211,7 +213,7 @@
 
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
 
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v8')) || {
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v9')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
@@ -222,7 +224,7 @@
 
         let pieChart = null;
         let lineChart = null;
-        let yieldChart = null;
+        let netProfitChart = null;
 
         function toggleLanguage() {
             const oldLang = currentLang;
@@ -263,10 +265,17 @@
             saveData();
         }
 
+        // 获取折算基准倍数：内部计算统一为CNY，如果当前是英文版，再除以 USD汇率 转换为USD
         function getMultiplier(currency) {
-            if (currency === 'USD') return portfolio.rates.usd;
-            if (currency === 'HKD') return portfolio.rates.hkd;
-            return 1;
+            let multCNY = 1;
+            if (currency === 'USD') multCNY = portfolio.rates.usd;
+            if (currency === 'HKD') multCNY = portfolio.rates.hkd;
+            
+            // 如果是英文模式，最终以USD计价（将CNY金额除以USD/CNY汇率）
+            if (currentLang === 'en') {
+                return multCNY / portfolio.rates.usd;
+            }
+            return multCNY;
         }
 
         function render() {
@@ -309,7 +318,7 @@
                 const tbody = document.getElementById(`tbody-${catIdx}`);
                 cat.items.forEach((item, itemIdx) => {
                     const rate = getMultiplier(item.currency);
-                    const mValCNY = item.shares * item.price * rate;
+                    const mVal = item.shares * item.price * rate;
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -324,7 +333,7 @@
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.shares}" oninput="saveData()" id="s-${catIdx}-${itemIdx}" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.cost}" oninput="saveData()" id="c-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.price}" oninput="saveData()" id="p-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-indigo-900/80 rounded px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"></td>
-                        <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium" id="v-${catIdx}-${itemIdx}">¥${mValCNY.toFixed(2)}</td>
+                        <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium" id="v-${catIdx}-${itemIdx}">${t.currencySymbol}${mVal.toFixed(2)}</td>
                         <td class="py-2.5 text-right"><button onclick="removeItem(${catIdx}, ${itemIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">${t.btnDelete}</button></td>
                     `;
                     tbody.appendChild(tr);
@@ -372,103 +381,104 @@
         function saveData() {
             portfolio.rates.usd = Number(document.getElementById('rate-usd').value) || 1;
             portfolio.rates.hkd = Number(document.getElementById('rate-hkd').value) || 1;
+            const t = i18n[currentLang];
 
             portfolio.categories.forEach((cat, catIdx) => {
                 cat.items.forEach((item, itemIdx) => {
-                    const t = document.getElementById(`t-${catIdx}-${itemIdx}`);
+                    const ti = document.getElementById(`t-${catIdx}-${itemIdx}`);
                     const cur = document.getElementById(`cur-${catIdx}-${itemIdx}`);
                     const s = document.getElementById(`s-${catIdx}-${itemIdx}`);
                     const c = document.getElementById(`c-${catIdx}-${itemIdx}`);
                     const p = document.getElementById(`p-${catIdx}-${itemIdx}`);
-                    if (!t) return;
+                    if (!ti) return;
 
-                    item.ticker = t.value.trim();
+                    item.ticker = ti.value.trim();
                     item.currency = cur.value;
                     item.shares = Number(s.value) || 0;
                     item.cost = Number(c.value) || 0;
                     item.price = Number(p.value) || 0;
 
                     const rate = getMultiplier(item.currency);
-                    const mValCNY = item.shares * item.price * rate;
-                    document.getElementById(`v-${catIdx}-${itemIdx}`).innerText = `¥${mValCNY.toFixed(2)}`;
+                    const mVal = item.shares * item.price * rate;
+                    document.getElementById(`v-${catIdx}-${itemIdx}`).innerText = `${t.currencySymbol}${mVal.toFixed(2)}`;
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v8', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v9', JSON.stringify(portfolio));
             calculate();
         }
 
         function calculate() {
-            let totalValCNY = 0;
-            let totalCostCNY = 0;
+            let totalVal = 0;
+            let totalCost = 0;
             let catTotals = {};
+            const t = i18n[currentLang];
 
             portfolio.categories.forEach(cat => {
                 let cVal = 0;
                 cat.items.forEach(item => {
                     const rate = getMultiplier(item.currency);
                     cVal += item.shares * item.price * rate;
-                    totalCostCNY += item.shares * item.cost * rate;
+                    totalCost += item.shares * item.cost * rate;
                 });
-                totalValCNY += cVal;
+                totalVal += cVal;
                 catTotals[cat.name] = cVal;
             });
 
-            let totalProfitCNY = totalValCNY - totalCostCNY;
-            let totalYieldPct = totalCostCNY > 0 ? (totalProfitCNY / totalCostCNY) * 100 : 0;
+            let totalProfit = totalVal - totalCost;
+            let totalYieldPct = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
 
-            document.getElementById('total-cost').innerText = `¥${totalCostCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
-            document.getElementById('total-value').innerText = `¥${totalValCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            document.getElementById('total-cost').innerText = `${t.currencySymbol}${totalCost.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            document.getElementById('total-value').innerText = `${t.currencySymbol}${totalVal.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
             
             const pElem = document.getElementById('total-profit');
-            pElem.innerText = `${totalProfitCNY >= 0 ? '+' : ''}¥${totalProfitCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
-            pElem.className = `text-sm font-bold ${totalProfitCNY >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            pElem.innerText = `${totalProfit >= 0 ? '+' : ''}${t.currencySymbol}${totalProfit.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            pElem.className = `text-sm font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
             const yElem = document.getElementById('total-yield');
             yElem.innerText = `${totalYieldPct >= 0 ? '+' : ''}${totalYieldPct.toFixed(2)}%`;
             yElem.className = `text-sm font-bold ${totalYieldPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            renderCharts(catTotals, totalValCNY, totalCostCNY, totalYieldPct);
+            renderCharts(catTotals, totalVal, totalCost);
         }
 
         function recordDailySnapshot() {
-            let totalValCNY = 0;
-            let totalCostCNY = 0;
+            let totalVal = 0;
+            let totalCost = 0;
             portfolio.categories.forEach(cat => {
                 cat.items.forEach(item => {
                     const rate = getMultiplier(item.currency);
-                    totalValCNY += item.shares * item.price * rate;
-                    totalCostCNY += item.shares * item.cost * rate;
+                    totalVal += item.shares * item.price * rate;
+                    totalCost += item.shares * item.cost * rate;
                 });
             });
 
-            const totalYieldPct = totalCostCNY > 0 ? ((totalValCNY - totalCostCNY) / totalCostCNY) * 100 : 0;
-
+            const netProfit = totalVal - totalCost;
             const now = new Date();
             const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
             
             if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].time.startsWith(timeStr.slice(0, 10))) {
-                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalValCNY, yieldPct: totalYieldPct };
+                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalVal, netProfit: netProfit };
             } else {
-                portfolio.history.push({ time: timeStr, value: totalValCNY, yieldPct: totalYieldPct });
+                portfolio.history.push({ time: timeStr, value: totalVal, netProfit: netProfit });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v8', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v9', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
-            alert(`${t.alertSnapshot} (${timeStr})：¥${totalValCNY.toFixed(2)} (${totalYieldPct >= 0 ? '+' : ''}${totalYieldPct.toFixed(2)}%)`);
+            alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
         }
 
         function clearHistory() {
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v8', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v9', JSON.stringify(portfolio));
                 calculate();
             }
         }
 
-        function renderCharts(catTotals, totalVal, totalCost, currentYield) {
+        function renderCharts(catTotals, totalVal, totalCost) {
             const t = i18n[currentLang];
             const labels = Object.keys(catTotals);
             const values = Object.values(catTotals);
@@ -503,21 +513,21 @@
             // 准备历史数据
             let timeLabels = [];
             let histValues = [];
-            let histYields = [];
+            let histNetProfits = [];
 
-            const initialYield = totalCost > 0 ? ((totalVal - totalCost) / totalCost) * 100 : 0;
+            const initialNetProfit = totalVal - totalCost;
 
             if (portfolio.history && portfolio.history.length >= 1) {
                 timeLabels = [t.initBase, ...portfolio.history.map(h => h.time)];
                 histValues = [totalCost, ...portfolio.history.map(h => h.value)];
-                histYields = [0, ...portfolio.history.map(h => h.yieldPct)];
+                histNetProfits = [0, ...portfolio.history.map(h => h.netProfit)];
             } else {
                 timeLabels = [t.initBase, t.latest];
                 histValues = [totalCost, totalVal];
-                histYields = [0, initialYield];
+                histNetProfits = [0, initialNetProfit];
             }
 
-            // 2. 净值成长曲线
+            // 2. 总资产金额成长曲线
             const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
             lineChart = new Chart(ctxLine, {
@@ -540,20 +550,20 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 5 } },
-                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 }, callback: function(v) { return t.currencySymbol + v.toLocaleString(); } } }
                     }
                 }
             });
 
-            // 3. 收益率曲线 (%)
-            const ctxYield = document.getElementById('portfolioYieldChart').getContext('2d');
-            if (yieldChart) yieldChart.destroy();
-            yieldChart = new Chart(ctxYield, {
+            // 3. 历史净收益曲线
+            const ctxNetProfit = document.getElementById('portfolioNetProfitChart').getContext('2d');
+            if (netProfitChart) netProfitChart.destroy();
+            netProfitChart = new Chart(ctxNetProfit, {
                 type: 'line',
                 data: {
                     labels: timeLabels,
                     datasets: [{
-                        data: histYields,
+                        data: histNetProfits,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 2,
@@ -573,7 +583,7 @@
                             ticks: { 
                                 color: '#64748b', 
                                 font: { size: 9 },
-                                callback: function(value) { return value.toFixed(1) + '%'; }
+                                callback: function(value) { return t.currencySymbol + value.toLocaleString(); }
                             } 
                         }
                     }
