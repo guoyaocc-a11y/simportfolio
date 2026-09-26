@@ -190,15 +190,15 @@
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
-                        items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'USD', shares: 2000, cost: 28.50, price: 42.00 }] 
+                        items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
                     },
                     { 
                         name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
-                        items: [{ ticker: '比特币 (BTC)', currency: 'USD', shares: 0.85, cost: 43189.09, price: 64500.00 }] 
+                        items: [{ ticker: '比特币 (BTC)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
                     },
                     { 
                         name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
-                        items: [{ ticker: '黄金 (GOLD)', currency: 'USD', shares: 15, cost: 2050.00, price: 2520.00 }] 
+                        items: [{ ticker: '黄金 (GOLD518850)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
                     }
                 ]
             },
@@ -244,15 +244,15 @@
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
-                        items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'USD', shares: 2000, cost: 28.50, price: 42.00 }] 
+                        items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
                     },
                     { 
                         name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
-                        items: [{ ticker: 'BTC (比特币)', currency: 'USD', shares: 0.85, cost: 43189.09, price: 64500.00 }] 
+                        items: [{ ticker: 'BTC (比特币)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
                     },
                     { 
                         name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
-                        items: [{ ticker: 'GOLD (黄金)', currency: 'USD', shares: 15, cost: 2050.00, price: 2520.00 }] 
+                        items: [{ ticker: 'GOLD518850 (黄金)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
                     }
                 ]
             }
@@ -261,7 +261,8 @@
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
         let currentTerminalMode = 'real'; // 'real' or 'ideal'
 
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v11')) || {
+        // 升级版 localStorage Key，强制刷新并锁定你手输的真实初始值
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v12')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
@@ -471,7 +472,6 @@
                 container.appendChild(card);
             });
 
-            // Update Ideal Dashboard Stats ($100k Principal baseline)
             const idealTotalCost = 100000;
             const idealTotalVal = 166100;
             const idealProfit = idealTotalVal - idealTotalCost;
@@ -490,7 +490,6 @@
             yElem.innerText = `+${idealYield.toFixed(2)}%`;
             yElem.className = "text-sm font-bold text-emerald-400";
 
-            // Ideal Model Charts (10-Year Backtest: 2016-2026)
             const catTotals = {
                 [currentLang === 'zh' ? '股票资产' : 'Equities']: 41525,
                 [currentLang === 'zh' ? '加密货币' : 'Crypto']: 56115,
@@ -515,7 +514,6 @@
                 return `${l} (${pct}%)`;
             });
 
-            // 1. Pie Chart
             const ctxPie = document.getElementById('assetPieChart').getContext('2d');
             if (pieChart) pieChart.destroy();
             pieChart = new Chart(ctxPie, {
@@ -535,7 +533,6 @@
                 }
             });
 
-            // 2. Growth Curve (10 Years)
             const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
             lineChart = new Chart(ctxLine, {
@@ -563,7 +560,6 @@
                 }
             });
 
-            // 3. Net Profit Curve (10 Years)
             const ctxNetProfit = document.getElementById('portfolioNetProfitChart').getContext('2d');
             if (netProfitChart) netProfitChart.destroy();
             netProfitChart = new Chart(ctxNetProfit, {
@@ -672,7 +668,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v11', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v12', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -735,7 +731,7 @@
                 portfolio.history.push({ time: timeStr, value: totalVal, netProfit: netProfit });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v11', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v12', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
@@ -745,7 +741,7 @@
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v11', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v12', JSON.stringify(portfolio));
                 calculate();
             }
         }
