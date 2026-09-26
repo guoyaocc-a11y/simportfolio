@@ -39,8 +39,9 @@
         .mode-btn.active-ideal { background: var(--violet); color: #fff; box-shadow: 0 4px 6px -1px rgba(168, 85, 247, .4); }
 
         .nav-right { display: flex; align-items: center; gap: 1rem; }
-        .rate-badge { display: none; }
-        @media(min-width: 768px) { .rate-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; background: rgba(15, 23, 42, 0.6); padding: 0.4rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); color: var(--text-muted); } }
+        .rate-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; background: rgba(15, 23, 42, 0.6); padding: 0.4rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color); color: var(--text-muted); }
+        .rate-input { background: #0f172a; border: 1px solid var(--border-color); border-radius: 0.25rem; color: #fff; width: 4.5rem; padding: 0.15rem 0.3rem; font-size: 0.75rem; text-align: center; }
+        
         .lang-btn { background: #1e293b; color: #f8fafc; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: 0.2s; }
         .lang-btn:hover { background: #334155; }
 
@@ -70,7 +71,7 @@
         .stat-sub-unit { font-size: 0.875rem; font-weight: 600; color: #818cf8; }
         .stat-desc { margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-muted); }
 
-        /* Workspace Grid */
+        /* Workspace Grid - Restored original proportions */
         .workspace-inner-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
         @media(min-width: 1024px) { .workspace-inner-grid { grid-template-columns: 7fr 5fr; } }
 
@@ -90,7 +91,7 @@
         tr:hover td { background: rgba(30, 41, 59, 0.5); }
         
         .table-input { background: #0f172a; border: 1px solid var(--border-color); border-radius: 0.375rem; padding: 0.35rem 0.5rem; font-size: 0.75rem; color: #fff; width: 100%; }
-        .category-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 600; background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .category-select { background: #0f172a; border: 1px solid var(--border-color); border-radius: 0.375rem; padding: 0.35rem 0.5rem; font-size: 0.75rem; color: #fff; width: 100%; }
         
         .chart-box { position: relative; width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; margin: 1rem 0; }
         .custom-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 0.5rem; font-size: 0.75rem; }
@@ -139,11 +140,14 @@
             </div>
 
             <div class="nav-right">
+                <!-- Editable Exchange Rates -->
                 <div class="rate-badge">
-                    <span>USD/CNY: <b id="lbl-rate-usdcny" style="color:#f8fafc">6.723</b></span>
+                    <span>USD/CNY: <input type="number" step="0.001" id="input-rate-usdcny" value="6.723" onchange="updateRates()" class="rate-input"></span>
                     <span>|</span>
-                    <span>HKD/CNY: <b id="lbl-rate-hkdcny" style="color:#f8fafc">0.856</b></span>
+                    <span>HKD/CNY: <input type="number" step="0.001" id="input-rate-hkdcny" value="0.856" onchange="updateRates()" class="rate-input"></span>
                 </div>
+
+                <!-- Language Toggle Button -->
                 <button onclick="toggleLanguage()" class="lang-btn">
                     <i class="fa-solid fa-globe" style="color:#818cf8"></i>
                     <span id="lang-indicator">EN / 中文</span>
@@ -351,7 +355,7 @@
 
     <!-- JavaScript Logic -->
     <script>
-        const RATES = { USD_CNY: 6.723, HKD_CNY: 0.856 };
+        let RATES = { USD_CNY: 6.723, HKD_CNY: 0.856 };
         let currentLang = 'zh';
         let currentMode = 'real';
 
@@ -434,6 +438,7 @@
             }
         };
 
+        // Real Portfolio Initial Data
         let realAssets = [
             { id: 1, name: "泡玛特 (Pop Mart)", category: "stock", amount: 2000, cost: 28.50, current: 42.00 },
             { id: 2, name: "比特币 (Bitcoin)", category: "crypto", amount: 0.85, cost: 43189.09, current: 64500.00 },
@@ -441,7 +446,7 @@
             { id: 4, name: "美债总回报 (AGG)", category: "fixedIncome", amount: 120, cost: 98.00, current: 102.50 }
         ];
 
-        // 10-Year Precise Real Backtest Data for $100k Equal-Weight Ideal Model (2016 - 2026)
+        // 10-Year Precise Real Backtest Data for Ideal Model
         const idealYears = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026 (Sep)"];
         const idealGrowthValues = [100000, 142350, 115200, 158900, 256400, 351200, 221800, 318500, 472000, 602500, 661000];
         const idealProfitValues = idealGrowthValues.map(v => v - 100000);
@@ -455,6 +460,13 @@
             updateDashboard();
             initCharts();
         });
+
+        function updateRates() {
+            RATES.USD_CNY = parseFloat(document.getElementById('input-rate-usdcny').value) || 6.723;
+            RATES.HKD_CNY = parseFloat(document.getElementById('input-rate-hkdcny').value) || 0.856;
+            updateDashboard();
+            updateCharts();
+        }
 
         function switchMode(mode) {
             currentMode = mode;
@@ -531,7 +543,17 @@
                     <td style="font-weight: 500; color: #fff;">
                         ${currentMode === 'real' ? `<input type="text" value="${asset.name}" onchange="updateAssetField(${asset.id}, 'name', this.value)" class="table-input">` : asset.name}
                     </td>
-                    <td><span class="category-badge">${getCategoryName(asset.category)}</span></td>
+                    <td>
+                        ${currentMode === 'real' ? `
+                            <select onchange="updateAssetField(${asset.id}, 'category', this.value)" class="category-select">
+                                <option value="stock" ${asset.category==='stock'?'selected':''}>${i18n[currentLang].catStock}</option>
+                                <option value="crypto" ${asset.category==='crypto'?'selected':''}>${i18n[currentLang].catCrypto}</option>
+                                <option value="commodity" ${asset.category==='commodity'?'selected':''}>${i18n[currentLang].catCommodity}</option>
+                                <option value="fixedIncome" ${asset.category==='fixedIncome'?'selected':''}>${i18n[currentLang].catFixedIncome}</option>
+                            </select>` : 
+                            `<span class="category-badge">${getCategoryName(asset.category)}</span>`
+                        }
+                    </td>
                     <td>${currentMode === 'real' ? `<input type="number" step="any" value="${asset.amount}" onchange="updateAssetField(${asset.id}, 'amount', this.value)" class="table-input" style="width: 5rem;">` : asset.amount}</td>
                     <td style="color: #cbd5e1;">${currentMode === 'real' ? `<input type="number" step="any" value="${asset.cost}" onchange="updateAssetField(${asset.id}, 'cost', this.value)" class="table-input" style="width: 5rem;">` : '$' + asset.cost.toLocaleString()}</td>
                     <td style="color: #cbd5e1;">${currentMode === 'real' ? `<input type="number" step="any" value="${asset.current}" onchange="updateAssetField(${asset.id}, 'current', this.value)" class="table-input" style="width: 5rem;">` : '$' + asset.current.toLocaleString()}</td>
@@ -556,7 +578,11 @@
             const asset = realAssets.find(a => a.id === id);
             if (!asset) return;
             if (field === 'name') asset.name = value;
-            else asset.amount = parseFloat(value) || 0;
+            else if (field === 'category') asset.category = value;
+            else if (field === 'amount') asset.amount = parseFloat(value) || 0;
+            else if (field === 'cost') asset.cost = parseFloat(value) || 0;
+            else if (field === 'current') asset.current = parseFloat(value) || 0;
+            
             updateDashboard();
             updateCharts();
         }
