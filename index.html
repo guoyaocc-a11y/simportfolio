@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimPortfolio - 全球私人资产多币种终端</title>
+    <title id="page-title">SimPortfolio - 全球私人资产多币种终端</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -16,18 +16,22 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
-                <span class="text-xl font-bold tracking-tight">SimPortfolio<span class="text-indigo-400 text-sm ml-2 font-normal">多币种资产终端 (统一折算CNY)</span></span>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">多币种资产终端 (统一折算CNY)</span></span>
             </div>
             <div class="flex items-center space-x-3">
+                <!-- 语言切换按钮 -->
+                <button onclick="toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2 rounded-xl transition border border-slate-700" id="lang-btn">
+                    English / 中文
+                </button>
                 <!-- 汇率快捷设置栏 -->
                 <div class="hidden md:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
-                    <span class="text-slate-400">💱 汇率设定:</span>
+                    <span class="text-slate-400" data-i18n="rate-label">💱 汇率设定:</span>
                     <label class="text-slate-300">USD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-usd" value="7.25" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                     <label class="text-slate-300 ml-2">HKD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-hkd" value="0.93" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                 </div>
-                <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow">
+                <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="add-category">
                     + 新增大类资产
                 </button>
             </div>
@@ -47,27 +51,22 @@
             <!-- 统计与打卡 -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-slate-300">资产总览与收盘记录 (折算人民币)</h3>
-                    <div class="flex space-x-2">
-                        <button onclick="openQuickUpdateModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-2 rounded-xl transition font-medium shadow flex items-center space-x-1">
-                            <span>⚡ 快捷更新</span>
-                        </button>
-                        <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl transition font-medium shadow">
-                            📸 记录今日净值
-                        </button>
-                    </div>
+                    <h3 class="text-sm font-semibold text-slate-300" data-i18n="overview-title">资产总览与收盘记录 (折算人民币)</h3>
+                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshot-btn">
+                        📸 记录今日收盘净值
+                    </button>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1">初始总投入 (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="label-cost">初始总投入 (¥)</span>
                         <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1">当前总净值 (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="label-value">当前总净值 (¥)</span>
                         <span id="total-value" class="text-sm font-bold text-white">¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1">总浮动盈亏 (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="label-profit">总浮动盈亏 (¥)</span>
                         <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
                     </div>
                 </div>
@@ -75,7 +74,7 @@
 
             <!-- 饼状图 (带百分比) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-sm font-semibold text-slate-200 mb-3">大类资产配置比例 (按人民币市值)</h3>
+                <h3 class="text-sm font-semibold text-slate-200 mb-3" data-i18n="pie-title">大类资产配置比例 (按人民币市值)</h3>
                 <div class="relative h-[200px] w-full flex items-center justify-center">
                     <canvas id="assetPieChart"></canvas>
                 </div>
@@ -84,8 +83,8 @@
             <!-- 折线图 (真实时间轴) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-slate-200">历史净值成长曲线 (人民币)</h3>
-                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline">清空历史记录</button>
+                    <h3 class="text-sm font-semibold text-slate-200" data-i18n="line-title">历史净值成长曲线 (人民币)</h3>
+                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline" data-i18n="clear-history">清空历史记录</button>
                 </div>
                 <div class="relative h-[180px] w-full flex items-center justify-center">
                     <canvas id="portfolioLineChart"></canvas>
@@ -95,30 +94,78 @@
 
     </main>
 
-    <!-- ⚡ 每日快捷更新浮窗 -->
-    <div id="quickUpdateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div>
-                    <h3 class="text-base font-bold text-slate-100">⚡ 快捷更新今日行情</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">直接修改最新单价，保存时将自动更新并打卡记录今日净值</p>
-                </div>
-                <button onclick="closeQuickUpdateModal()" class="text-slate-400 hover:text-white text-lg px-2">✕</button>
-            </div>
-            
-            <div id="quick-items-container" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-                <!-- 动态生成持仓快速输入行 -->
-            </div>
-
-            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
-                <button onclick="closeQuickUpdateModal()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 transition">取消</button>
-                <button onclick="saveQuickUpdate()" class="px-5 py-2 rounded-xl text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition shadow">保存并自动打卡</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 核心脚本 -->
     <script>
+        // 多语言字典
+        const i18n = {
+            zh: {
+                pageTitle: "SimPortfolio - 全球私人资产多币种终端",
+                navSubtitle: "多币种资产终端 (统一折算CNY)",
+                langBtn: "Switch to English",
+                rateLabel: "💱 汇率设定:",
+                addCategory: "+ 新增大类资产",
+                overviewTitle: "资产总览与收盘记录 (折算人民币)",
+                snapshotBtn: "📸 记录今日收盘净值",
+                labelCost: "初始总投入 (¥)",
+                labelValue: "当前总净值 (¥)",
+                labelProfit: "总浮动盈亏 (¥)",
+                pieTitle: "大类资产配置比例 (按人民币市值)",
+                lineTitle: "历史净值成长曲线 (人民币)",
+                clearHistory: "清空历史记录",
+                thTicker: "代码/说明",
+                thCurrency: "币种",
+                thShares: "数量",
+                thCost: "成本价",
+                thPrice: "当前单价",
+                thValue: "折算市值(¥)",
+                thAction: "操作",
+                btnDelete: "删除",
+                btnRemoveCat: "删除板块",
+                btnAddItem: "+ 添加标的",
+                promptCat: "请输入新大类名称：",
+                promptCatDefault: "海外大类",
+                confirmDelCat: "确定删除该大类及所有明细吗？",
+                confirmClearHist: "确定清空所有历史快照吗？",
+                alertSnapshot: "✅ 已记录收盘人民币快照",
+                initBase: "初始建仓基准",
+                latest: "当前最新"
+            },
+            en: {
+                pageTitle: "SimPortfolio - Global Private Asset Multi-Currency Terminal",
+                navSubtitle: "Multi-Currency Terminal (Converted to CNY)",
+                langBtn: "切换至中文",
+                rateLabel: "💱 Rates:",
+                addCategory: "+ Add Category",
+                overviewTitle: "Portfolio Overview & Snapshot (Converted to CNY)",
+                snapshotBtn: "📸 Record Today's Snapshot",
+                labelCost: "Initial Cost (¥)",
+                labelValue: "Current Value (¥)",
+                labelProfit: "Total Profit/Loss (¥)",
+                pieTitle: "Asset Allocation (By CNY Market Value)",
+                lineTitle: "Historical Value Growth Curve (CNY)",
+                clearHistory: "Clear History",
+                thTicker: "Ticker/Name",
+                thCurrency: "Currency",
+                thShares: "Shares",
+                thCost: "Cost Price",
+                thPrice: "Current Price",
+                thValue: "Value (¥)",
+                thAction: "Action",
+                btnDelete: "Delete",
+                btnRemoveCat: "Remove",
+                btnAddItem: "+ Add Asset",
+                promptCat: "Enter new category name:",
+                promptCatDefault: "Global Assets",
+                confirmDelCat: "Are you sure to delete this category?",
+                confirmClearHist: "Are you sure to clear all history snapshots?",
+                alertSnapshot: "✅ Recorded CNY snapshot",
+                initBase: "Initial Baseline",
+                latest: "Latest"
+            }
+        };
+
+        let currentLang = localStorage.getItem('sim_lang') || 'zh';
+
         let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v4')) || {
             rates: { usd: 7.25, hkd: 0.93 },
             categories: [
@@ -151,6 +198,26 @@
         let pieChart = null;
         let lineChart = null;
 
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('sim_lang', currentLang);
+            updateUIText();
+            render();
+        }
+
+        function updateUIText() {
+            const t = i18n[currentLang];
+            document.getElementById('page-title').innerText = t.pageTitle;
+            document.getElementById('nav-subtitle').innerText = t.navSubtitle;
+            document.getElementById('lang-btn').innerText = t.langBtn;
+            
+            // 遍历所有带有 data-i18n 属性的静态标签
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerText = t[key];
+            });
+        }
+
         function updateRates() {
             portfolio.rates.usd = Number(document.getElementById('rate-usd').value) || 1;
             portfolio.rates.hkd = Number(document.getElementById('rate-hkd').value) || 1;
@@ -164,6 +231,8 @@
         }
 
         function render() {
+            updateUIText();
+            const t = i18n[currentLang];
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
 
@@ -175,21 +244,21 @@
                         <input type="text" value="${cat.name}" onchange="updateCatName(${catIdx}, this.value)" 
                                class="bg-transparent text-sm font-bold text-slate-200 border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1">
                         <div class="flex space-x-2">
-                            <button onclick="addItem(${catIdx})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加标的</button>
-                            <button onclick="removeCat(${catIdx})" class="text-xs text-rose-400 hover:text-rose-300 px-1.5 py-1 bg-rose-950/30 rounded border border-rose-900/50">删除板块</button>
+                            <button onclick="addItem(${catIdx})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">${t.btnAddItem}</button>
+                            <button onclick="removeCat(${catIdx})" class="text-xs text-rose-400 hover:text-rose-300 px-1.5 py-1 bg-rose-950/30 rounded border border-rose-900/50">${t.btnRemoveCat}</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="border-b border-slate-800 text-slate-400">
-                                    <th class="pb-2 font-medium w-28">代码/说明</th>
-                                    <th class="pb-2 font-medium w-16">币种</th>
-                                    <th class="pb-2 font-medium">数量</th>
-                                    <th class="pb-2 font-medium">成本价</th>
-                                    <th class="pb-2 font-medium">当前单价</th>
-                                    <th class="pb-2 font-medium">折算市值(¥)</th>
-                                    <th class="pb-2 font-medium text-right">操作</th>
+                                    <th class="pb-2 font-medium w-28">${t.thTicker}</th>
+                                    <th class="pb-2 font-medium w-16">${t.thCurrency}</th>
+                                    <th class="pb-2 font-medium">${t.thShares}</th>
+                                    <th class="pb-2 font-medium">${t.thCost}</th>
+                                    <th class="pb-2 font-medium">${t.thPrice}</th>
+                                    <th class="pb-2 font-medium">${t.thValue}</th>
+                                    <th class="pb-2 font-medium text-right">${t.thAction}</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-${catIdx}" class="divide-y divide-slate-800/50"></tbody>
@@ -217,7 +286,7 @@
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.cost}" oninput="saveData()" id="c-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.price}" oninput="saveData()" id="p-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-indigo-900/80 rounded px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium" id="v-${catIdx}-${itemIdx}">¥${mValCNY.toFixed(2)}</td>
-                        <td class="py-2.5 text-right"><button onclick="removeItem(${catIdx}, ${itemIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">删除</button></td>
+                        <td class="py-2.5 text-right"><button onclick="removeItem(${catIdx}, ${itemIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">${t.btnDelete}</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -227,7 +296,8 @@
         }
 
         function addNewCategory() {
-            const name = prompt('请输入新大类名称：', '海外大类');
+            const t = i18n[currentLang];
+            const name = prompt(t.promptCat, t.promptCatDefault);
             if (!name) return;
             portfolio.categories.push({ name: name, items: [{ ticker: 'NEW', currency: 'USD', shares: 10, cost: 100, price: 100 }] });
             saveData();
@@ -240,7 +310,8 @@
         }
 
         function removeCat(catIdx) {
-            if (confirm('确定删除该大类及所有明细吗？')) {
+            const t = i18n[currentLang];
+            if (confirm(t.confirmDelCat)) {
                 portfolio.categories.splice(catIdx, 1);
                 saveData();
                 render();
@@ -316,56 +387,6 @@
             renderCharts(catTotals, totalValCNY, totalCostCNY);
         }
 
-        // ⚡ 快捷更新弹窗逻辑
-        function openQuickUpdateModal() {
-            const container = document.getElementById('quick-items-container');
-            container.innerHTML = '';
-
-            portfolio.categories.forEach((cat, catIdx) => {
-                cat.items.forEach((item, itemIdx) => {
-                    const row = document.createElement('div');
-                    row.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between space-x-3';
-                    row.innerHTML = `
-                        <div class="flex-1 min-w-0">
-                            <span class="text-xs font-bold text-indigo-300 block truncate">${item.ticker}</span>
-                            <span class="text-[10px] text-slate-400">${cat.name} | 数量: ${item.shares} (${item.currency})</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-xs text-slate-400">${item.currency} 单价:</span>
-                            <input type="number" step="any" value="${item.price}" id="quick-price-${catIdx}-${itemIdx}" 
-                                   class="w-24 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white text-center font-bold focus:outline-none focus:border-indigo-500">
-                        </div>
-                    `;
-                    container.appendChild(row);
-                });
-            });
-
-            document.getElementById('quickUpdateModal').classList.remove('hidden');
-        }
-
-        function closeQuickUpdateModal() {
-            document.getElementById('quickUpdateModal').classList.add('hidden');
-        }
-
-        function saveQuickUpdate() {
-            portfolio.categories.forEach((cat, catIdx) => {
-                cat.items.forEach((item, itemIdx) => {
-                    const input = document.getElementById(`quick-price-${catIdx}-${itemIdx}`);
-                    if (input) {
-                        item.price = Number(input.value) || item.price;
-                    }
-                });
-            });
-
-            // 保存并刷新主界面
-            localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
-            render();
-            closeQuickUpdateModal();
-
-            // 顺便自动打卡记录今日净值
-            recordDailySnapshotSilent();
-        }
-
         function recordDailySnapshot() {
             let totalValCNY = 0;
             portfolio.categories.forEach(cat => {
@@ -386,33 +407,13 @@
 
             localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
             calculate();
-            alert(`✅ 已记录收盘人民币快照 (${timeStr})：¥${totalValCNY.toFixed(2)}`);
-        }
-
-        function recordDailySnapshotSilent() {
-            let totalValCNY = 0;
-            portfolio.categories.forEach(cat => {
-                cat.items.forEach(item => {
-                    const rate = getMultiplier(item.currency);
-                    totalValCNY += item.shares * item.price * rate;
-                });
-            });
-
-            const now = new Date();
-            const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].time.startsWith(timeStr.slice(0, 10))) {
-                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalValCNY };
-            } else {
-                portfolio.history.push({ time: timeStr, value: totalValCNY });
-            }
-
-            localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
-            calculate();
+            const t = i18n[currentLang];
+            alert(`${t.alertSnapshot} (${timeStr})：¥${totalValCNY.toFixed(2)}`);
         }
 
         function clearHistory() {
-            if (confirm('确定清空所有历史快照吗？')) {
+            const t = i18n[currentLang];
+            if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
                 localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
                 calculate();
@@ -420,6 +421,7 @@
         }
 
         function renderCharts(catTotals, totalVal, totalCost) {
+            const t = i18n[currentLang];
             const labels = Object.keys(catTotals);
             const values = Object.values(catTotals);
             
@@ -458,7 +460,7 @@
                 timeLabels = portfolio.history.map(h => h.time);
                 histValues = portfolio.history.map(h => h.value);
             } else {
-                timeLabels = ['初始建仓基准', '当前最新'];
+                timeLabels = [t.initBase, t.latest];
                 histValues = [totalCost, totalVal];
             }
 
