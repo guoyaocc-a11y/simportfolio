@@ -21,6 +21,7 @@
             --emerald: #10b981;
             --rose: #f43f5e;
             --violet: #a855f7;
+            --amber: #f59e0b;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding-bottom: 4rem; }
@@ -48,16 +49,11 @@
         main { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
 
         /* Hero Banner */
-        .hero-banner { position: relative; overflow: hidden; border-radius: 1rem; background: linear-gradient(135deg, #0f172a, #1e1b4b, #0f172a); border: 1px solid var(--border-color); padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
-        .hero-content { position: relative; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 1.5rem; }
-        @media(min-width: 768px) { .hero-content { flex-direction: row; align-items: center; } }
-        .hero-tag { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .hero-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; color: #fff; margin-bottom: 0.5rem; }
-        .hero-desc { font-size: 0.875rem; color: #cbd5e1; line-height: 1.6; max-width: 42rem; }
-        .hero-stats { display: flex; gap: 1rem; }
-        .hero-stat-card { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); padding: 1rem; border-radius: 0.75rem; text-align: center; min-width: 130px; }
-        .hero-stat-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
-        .hero-stat-value { font-size: 1.1rem; font-weight: 700; color: #818cf8; }
+        .hero-banner { position: relative; overflow: hidden; border-radius: 1rem; background: linear-gradient(135deg, #0f172a, #1e1b4b, #0f172a); border: 1px solid var(--border-color); padding: 2.5rem 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+        .hero-content { position: relative; z-index: 10; max-width: 48rem; }
+        .hero-tag { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #818cf8; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .hero-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.025em; color: #fff; margin-bottom: 0.75rem; }
+        .hero-desc { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
 
         /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
@@ -67,7 +63,7 @@
         .stat-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
         .stat-icon { padding: 0.6rem; border-radius: 0.75rem; font-size: 1rem; }
         .stat-value-box { margin-top: 1rem; display: flex; align-items: baseline; gap: 0.5rem; }
-        .stat-main-num { font-size: 2rem; font-weight: 900; letter-spacing: -0.025em; color: #fff; }
+        .stat-main-num { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.025em; color: #fff; }
         .stat-sub-unit { font-size: 0.875rem; font-weight: 600; color: #818cf8; }
         .stat-desc { margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-muted); }
 
@@ -181,30 +177,18 @@
     <!-- Main Container -->
     <main>
 
-        <!-- Banner / Hero Section: Diversification Philosophy -->
+        <!-- Banner / Hero Section: Diversification Philosophy (Cleaned up, no useless stats) -->
         <section class="hero-banner">
             <div style="position: absolute; right: 0; top: 0; transform: translate(30%, -30%); width: 24rem; height: 24rem; background: rgba(99, 102, 241, 0.1); border-radius: 50%; filter: blur(60px); pointer-events: none;"></div>
             <div class="hero-content">
-                <div>
-                    <div class="hero-tag">
-                        <i class="fa-solid fa-sparkles"></i>
-                        <span data-i18n="badgePhilosophy">分散投资的视觉艺术</span>
-                    </div>
-                    <h2 class="hero-title" data-i18n="heroTitle">The Art of Diversification</h2>
-                    <p class="hero-desc" data-i18n="heroDesc">
-                        股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。
-                    </p>
+                <div class="hero-tag">
+                    <i class="fa-solid fa-sparkles"></i>
+                    <span data-i18n="badgePhilosophy">分散投资的视觉艺术</span>
                 </div>
-                <div class="hero-stats">
-                    <div class="hero-stat-card">
-                        <div class="hero-stat-label" data-i18n="statModelSpan">历史回溯周期</div>
-                        <div class="hero-stat-value">10 Years</div>
-                    </div>
-                    <div class="hero-stat-card">
-                        <div class="hero-stat-label" data-i18n="statAssetClasses">核心大类资产</div>
-                        <div class="hero-stat-value" style="color:#10b981">4 Pillars</div>
-                    </div>
-                </div>
+                <h2 class="hero-title" data-i18n="heroTitle">The Art of Diversification</h2>
+                <p class="hero-desc" data-i18n="heroDesc">
+                    股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。
+                </p>
             </div>
         </section>
 
@@ -238,18 +222,18 @@
                 <p id="stat-profit-percent" class="stat-desc" style="color: #10b981; font-weight: 500;">收益率: +0.00%</p>
             </div>
 
+            <!-- Dynamic Allocation Health Score Card -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title" data-i18n="cardAllocationStatus">配置健康度 (Allocation)</span>
-                    <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
-                        <i class="fa-solid fa-shield-halved"></i>
+                    <div id="health-icon-bg" class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                        <i id="health-icon" class="fa-solid fa-shield-halved"></i>
                     </div>
                 </div>
                 <div class="stat-value-box">
-                    <span id="stat-balance-score" class="stat-main-num">Balanced</span>
-                    <span class="stat-sub-unit" style="color: #a855f7;" data-i18n="scoreGrade">A+ 级多元</span>
+                    <span id="stat-balance-score" class="stat-main-num" style="font-size: 1.5rem;">极度分散</span>
                 </div>
-                <p class="stat-desc" data-i18n="cardSubDesc">跨周期对冲与资产抗风险评级</p>
+                <p id="stat-health-desc" class="stat-desc" style="color: #a855f7; font-weight: 500;">跨周期对冲与资产抗风险处于最佳状态</p>
             </div>
         </div>
 
@@ -395,13 +379,9 @@
                 badgePhilosophy: "分散投资的视觉艺术",
                 heroTitle: "分散投资的宏观美学",
                 heroDesc: "股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。",
-                statModelSpan: "历史回溯周期",
-                statAssetClasses: "核心大类资产",
                 cardTotalAssets: "总资产规模 (Total Assets)",
                 cardTotalProfit: "历史累计盈亏 (Total Profit)",
                 cardAllocationStatus: "配置健康度 (Allocation)",
-                scoreGrade: "A+ 级多元",
-                cardSubDesc: "跨周期对冲与资产抗风险评级",
                 tableTitle: "资产清单与持仓明细",
                 tableDesc: "以成本基点与今日现价计算，支持更新今日价格绘制折线图",
                 btnAddAsset: "添加资产",
@@ -434,13 +414,9 @@
                 badgePhilosophy: "The Art of Diversification",
                 heroTitle: "The Art of Diversification",
                 heroDesc: "Equities, Crypto, Commodities, and Bonds working in harmony. Visualize the power of risk-spread and steady compounding.",
-                statModelSpan: "Backtest Horizon",
-                statAssetClasses: "Core Pillars",
                 cardTotalAssets: "Total Assets",
                 cardTotalProfit: "Total Profit / Loss",
                 cardAllocationStatus: "Allocation Grade",
-                scoreGrade: "A+ Balanced",
-                cardSubDesc: "Cross-cycle hedging & risk rating",
                 tableTitle: "Portfolio Assets & Holdings",
                 tableDesc: "Calculated from cost basis & current prices. Update today's price to plot charts.",
                 btnAddAsset: "Add Asset",
@@ -468,23 +444,21 @@
             }
         };
 
-        // Real Portfolio Initial Data (Your exact baseline 3 assets)
+        // Real Portfolio Initial Data
         let realAssets = [
             { id: 1, name: "泡泡玛特 (Pop Mart)", category: "stock", amount: 2000, cost: 28.50, current: 42.00 },
             { id: 2, name: "比特币 (Bitcoin)", category: "crypto", amount: 0.85, cost: 43189.09, current: 64500.00 },
             { id: 3, name: "黄金现货 (Gold)", category: "commodity", amount: 15, cost: 2050.00, current: 2520.00 }
         ];
 
-        // Real Portfolio History (Cost Basis Base -> Today's Live Update)
-        let realHistoryLabels = ["初始成本基点", "第1周追踪", "今日最新"];
+        let realHistoryLabels = ["初始成本基点", "近期追踪", "今日最新"];
         let realHistoryValues = [
             realAssets.reduce((sum, a) => sum + (a.amount * a.cost), 0),
             realAssets.reduce((sum, a) => sum + (a.amount * a.cost), 0) * 1.03,
             realAssets.reduce((sum, a) => sum + (a.amount * a.current), 0)
         ];
 
-        // Ideal Model Data (10-Year Precise Real Historical Backtest: 2016 - 2026)
-        // 4 Core pillars ($25k each in SPY, Bitcoin, Gold, AGG at 2016 start)
+        // Ideal Model Data (10-Year Real Historical Backtest: 2016 - 2026, Equal Weight 4 Pillars)
         const idealYears = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026 (Sep)"];
         const idealGrowthValues = [100000, 142350, 115200, 158900, 256400, 351200, 221800, 318500, 472000, 602500, 661000];
         const idealProfitValues = idealGrowthValues.map(v => v - 100000);
@@ -662,6 +636,60 @@
             document.getElementById('custom-modal').style.display = 'none';
         }
 
+        function updateHealthScore(assets) {
+            if (assets.length === 0) return;
+            
+            let catTotals = { stock: 0, crypto: 0, commodity: 0, fixedIncome: 0 };
+            let totalVal = 0;
+
+            assets.forEach(a => {
+                const val = a.amount * a.current;
+                catTotals[a.category] = (catTotals[a.category] || 0) + val;
+                totalVal += val;
+            });
+
+            if (totalVal === 0) return;
+
+            // Calculate percentage for each
+            let stockPct = (catTotals.stock / totalVal) * 100;
+            let cryptoPct = (catTotals.crypto / totalVal) * 100;
+            let goldPct = (catTotals.commodity / totalVal) * 100;
+            let bondPct = (catTotals.fixedIncome / totalVal) * 100;
+
+            const scoreEl = document.getElementById('stat-balance-score');
+            const descEl = document.getElementById('stat-health-desc');
+            const iconBg = document.getElementById('health-icon-bg');
+            const iconEl = document.getElementById('health-icon');
+
+            // Logic matching user requirements:
+            // 1. Extreme diversification (balanced across categories) -> Best
+            // 2. High risk concentration (crypto > 50% or stock > 80%) -> High volatility warning
+            // 3. Too conservative (bond > 80%) -> Low yield warning
+
+            if (cryptoPct > 40 || stockPct > 75) {
+                scoreEl.innerText = currentLang === 'zh' ? "⚠️ 高波动警示" : "⚠️ High Volatility";
+                scoreEl.style.color = "#f43f5e";
+                descEl.innerText = currentLang === 'zh' ? "权益或加密资产过高，波动剧烈，建议增加黄金与固收对冲" : "Over-concentrated in risk assets; consider hedging.";
+                descEl.style.color = "#f43f5e";
+                iconBg.style.background = "rgba(244, 63, 94, 0.1)";
+                iconEl.style.color = "#f43f5e";
+            } else if (bondPct > 75) {
+                scoreEl.innerText = currentLang === 'zh' ? "🛡️ 低收益保守" : "🛡️ Low Yield";
+                scoreEl.style.color = "#f59e0b";
+                descEl.innerText = currentLang === 'zh' ? "固收占比过高，抗风险强但长期成长性不足" : "Too conservative; long-term growth may lag.";
+                descEl.style.color = "#f59e0b";
+                iconBg.style.background = "rgba(245, 158, 11, 0.1)";
+                iconEl.style.color = "#f59e0b";
+            } else {
+                scoreEl.innerText = currentLang === 'zh' ? "🌟 极度分散" : "🌟 Highly Balanced";
+                scoreEl.style.color = "#10b981";
+                descEl.innerText = currentLang === 'zh' ? "跨周期对冲与资产抗风险处于最佳状态" : "Cross-cycle hedging & diversification at its best.";
+                descEl.style.color = "#10b981";
+                iconBg.style.background = "rgba(16, 185, 129, 0.1)";
+                iconEl.style.color = "#10b981";
+            }
+        }
+
         function updateDashboard() {
             const assets = getActiveAssets();
             const isEnglish = currentLang === 'en';
@@ -707,6 +735,7 @@
                 profitPctEl.innerText = (currentLang === 'zh' ? "收益率: " : "Return: ") + totalProfitPercent.toFixed(2) + "%";
             }
 
+            updateHealthScore(assets);
             updatePieChartData(assets);
         }
 
@@ -784,7 +813,6 @@
                 const costVal = realAssets.reduce((sum, a) => sum + (a.amount * a.cost), 0);
                 const currentVal = realAssets.reduce((sum, a) => sum + (a.amount * a.current), 0);
                 
-                // Keep base at index 0 as total cost basis, update latest at the end
                 realHistoryValues[0] = costVal;
                 realHistoryValues[realHistoryValues.length - 1] = currentVal;
 
