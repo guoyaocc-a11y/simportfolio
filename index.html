@@ -92,7 +92,7 @@
 
     <!-- 核心脚本 -->
     <script>
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v2')) || {
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v4')) || {
             rates: { usd: 7.25, hkd: 0.93 },
             categories: [
                 {
@@ -102,9 +102,9 @@
                     ]
                 },
                 {
-                    name: '🪙 加密货币',
+                    name: '🪙 加密货币与合约',
                     items: [
-                        { ticker: 'BTC', currency: 'USD', shares: 0.155, cost: 79644.5, price: 83940.8 }
+                        { ticker: 'BTC', currency: 'CNY', shares: 1, cost: 47240.5, price: 47240.5 }
                     ]
                 },
                 {
@@ -156,7 +156,7 @@
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="border-b border-slate-800 text-slate-400">
-                                    <th class="pb-2 font-medium w-24">代码/名称</th>
+                                    <th class="pb-2 font-medium w-28">代码/说明</th>
                                     <th class="pb-2 font-medium w-16">币种</th>
                                     <th class="pb-2 font-medium">数量</th>
                                     <th class="pb-2 font-medium">成本价</th>
@@ -200,7 +200,7 @@
         }
 
         function addNewCategory() {
-            const name = prompt('请输入新大类名称（例如：海外债券、加密资产）：', '海外大类');
+            const name = prompt('请输入新大类名称：', '海外大类');
             if (!name) return;
             portfolio.categories.push({ name: name, items: [{ ticker: 'NEW', currency: 'USD', shares: 10, cost: 100, price: 100 }] });
             saveData();
@@ -257,7 +257,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v2', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -286,7 +286,7 @@
             pElem.innerText = `${totalProfitCNY >= 0 ? '+' : ''}¥${totalProfitCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
             pElem.className = `text-sm font-bold ${totalProfitCNY >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            renderCharts(catTotals, totalValCNY);
+            renderCharts(catTotals, totalValCNY, totalCostCNY);
         }
 
         function recordDailySnapshot() {
@@ -307,7 +307,7 @@
                 portfolio.history.push({ time: timeStr, value: totalValCNY });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v2', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
             calculate();
             alert(`✅ 已记录收盘人民币快照 (${timeStr})：¥${totalValCNY.toFixed(2)}`);
         }
@@ -315,12 +315,12 @@
         function clearHistory() {
             if (confirm('确定清空所有历史快照吗？')) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v2', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
                 calculate();
             }
         }
 
-        function renderCharts(catTotals, totalVal) {
+        function renderCharts(catTotals, totalVal, totalCost) {
             const labels = Object.keys(catTotals);
             const values = Object.values(catTotals);
             
@@ -351,10 +351,19 @@
                 }
             });
 
-            // 2. 折线图
-            const history = portfolio.history || [];
-            const timeLabels = history.length > 0 ? history.map(h => h.time) : ['初始建仓'];
-            const histValues = history.length > 0 ? history.map(h => h.value) : [totalVal];
+            // 2. 折线图 (以成本为强制起点，后续按时间戳追加)
+            let timeLabels = [];
+            let histValues = [];
+
+            if (portfolio.history && portfolio.history.length > 0) {
+                // 如果用户已经有打卡记录，则把“总成本”作为历史第一点（或直接展示历史轨迹）
+                timeLabels = portfolio.history.map(h => h.time);
+                histValues = portfolio.history.map(h => h.value);
+            } else {
+                // 如果没有打卡记录，默认强制用“初始总成本”作为起点，当前现价作为第二个点
+                timeLabels = ['初始建仓基准', '当前最新'];
+                histValues = [totalCost, totalVal];
+            }
 
             const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
