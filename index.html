@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">SimPortfolio - Global Private Asset Multi-Currency Terminal</title>
+    <title id="page-title">SimPortfolio - 全球私人资产多币种终端</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -16,7 +16,7 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
-                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal"></span></span>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">多币种资产终端 (统一折算CNY)</span></span>
             </div>
             <div class="flex items-center space-x-3">
                 <!-- Language Switch Button -->
@@ -27,9 +27,9 @@
                 <div class="hidden md:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
                     <span class="text-slate-400" data-i18n="rateLabel">💱 汇率设定:</span>
                     <label class="text-slate-300">USD/CNY:</label>
-                    <input type="number" step="0.0001" id="rate-usd" value="7.25" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
+                    <input type="number" step="0.0001" id="rate-usd" value="6.723" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                     <label class="text-slate-300 ml-2">HKD/CNY:</label>
-                    <input type="number" step="0.0001" id="rate-hkd" value="0.93" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
+                    <input type="number" step="0.0001" id="rate-hkd" value="0.856" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                 </div>
                 <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="addCategory">
                     + 新增大类资产
@@ -56,7 +56,7 @@
                         📸 记录今日收盘净值
                     </button>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
                         <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelCost">初始总投入 (¥)</span>
                         <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
@@ -69,25 +69,39 @@
                         <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
                         <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
                     </div>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield">资金总收益率 (%)</span>
+                        <span id="total-yield" class="text-sm font-bold text-emerald-400">+0.00%</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Pie Chart -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h3 class="text-sm font-semibold text-slate-200 mb-3" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
-                <div class="relative h-[200px] w-full flex items-center justify-center">
+                <div class="relative h-[180px] w-full flex items-center justify-center">
                     <canvas id="assetPieChart"></canvas>
                 </div>
             </div>
 
-            <!-- Line Chart -->
+            <!-- Line Chart: Absolute Value -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-slate-200" data-i18n="lineTitle">历史净值成长曲线 (人民币)</h3>
                     <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">清空历史记录</button>
                 </div>
-                <div class="relative h-[180px] w-full flex items-center justify-center">
+                <div class="relative h-[150px] w-full flex items-center justify-center">
                     <canvas id="portfolioLineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Line Chart: Yield Rate (%) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-slate-200" data-i18n="yieldLineTitle">历史资产收益率曲线 (%)</h3>
+                </div>
+                <div class="relative h-[150px] w-full flex items-center justify-center">
+                    <canvas id="portfolioYieldChart"></canvas>
                 </div>
             </div>
         </section>
@@ -96,7 +110,6 @@
 
     <!-- Core Script -->
     <script>
-        // 全局多语言字典
         const i18n = {
             zh: {
                 pageTitle: "SimPortfolio - 全球私人资产多币种终端",
@@ -109,8 +122,10 @@
                 labelCost: "初始总投入 (¥)",
                 labelValue: "当前总净值 (¥)",
                 labelProfit: "总浮动盈亏 (¥)",
+                labelYield: "资金总收益率 (%)",
                 pieTitle: "大类资产配置比例 (按人民币市值)",
                 lineTitle: "历史净值成长曲线 (人民币)",
+                yieldLineTitle: "历史资产收益率曲线 (%)",
                 clearHistory: "清空历史记录",
                 thTicker: "代码/说明",
                 thCurrency: "币种",
@@ -130,9 +145,18 @@
                 initBase: "初始成本基准",
                 latest: "当前最新",
                 defaultCategories: [
-                    { name: '📈 股票类资产', items: [{ ticker: 'POPMART', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] },
-                    { name: '🪙 加密货币与合约', items: [{ ticker: 'BTC', currency: 'CNY', shares: 1, cost: 47240.5, price: 47240.5 }] },
-                    { name: '🥇 大宗类', items: [{ ticker: 'GOLD518850', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] }
+                    { 
+                        name: '📈 股票类资产', 
+                        items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
+                    },
+                    { 
+                        name: '🪙 加密货币与合约', 
+                        items: [{ ticker: '比特币 (BTC)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
+                    },
+                    { 
+                        name: '🥇 大宗类', 
+                        items: [{ ticker: '黄金 (GOLD518850)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
+                    }
                 ]
             },
             en: {
@@ -146,8 +170,10 @@
                 labelCost: "Initial Cost (¥)",
                 labelValue: "Current Value (¥)",
                 labelProfit: "Total Profit/Loss (¥)",
+                labelYield: "Total Yield Rate (%)",
                 pieTitle: "Asset Allocation (By CNY Market Value)",
                 lineTitle: "Historical Value Growth Curve (CNY)",
+                yieldLineTitle: "Historical Yield Rate Curve (%)",
                 clearHistory: "Clear History",
                 thTicker: "Ticker/Name",
                 thCurrency: "Currency",
@@ -167,18 +193,26 @@
                 initBase: "Initial Cost Base",
                 latest: "Latest",
                 defaultCategories: [
-                    { name: '📈 Equities', items: [{ ticker: 'POPMART', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] },
-                    { name: '🪙 Crypto & Futures', items: [{ ticker: 'BTC', currency: 'CNY', shares: 1, cost: 47240.5, price: 47240.5 }] },
-                    { name: '🥇 Commodities', items: [{ ticker: 'GOLD518850', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] }
+                    { 
+                        name: '📈 Equities', 
+                        items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
+                    },
+                    { 
+                        name: '🪙 Crypto & Futures', 
+                        items: [{ ticker: 'BTC (比特币)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
+                    },
+                    { 
+                        name: '🥇 Commodities', 
+                        items: [{ ticker: 'GOLD518850 (黄金)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
+                    }
                 ]
             }
         };
 
-        // 默认语言初始化（如果没有记录则默认中文）
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
 
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v7')) || {
-            rates: { usd: 7.25, hkd: 0.93 },
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v8')) || {
+            rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
         };
@@ -188,13 +222,13 @@
 
         let pieChart = null;
         let lineChart = null;
+        let yieldChart = null;
 
         function toggleLanguage() {
             const oldLang = currentLang;
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             localStorage.setItem('sim_lang', currentLang);
 
-            // 智能映射默认板块名称，防止切换时板块名错乱
             portfolio.categories.forEach(cat => {
                 if (oldLang === 'zh') {
                     if (cat.name === '📈 股票类资产') cat.name = '📈 Equities';
@@ -217,7 +251,6 @@
             document.getElementById('nav-subtitle').innerText = t.navSubtitle;
             document.getElementById('lang-btn').innerText = t.langBtn;
             
-            // 遍历所有带有 data-i18n 属性的标签进行全域翻译更新
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.innerText = t[key];
@@ -258,7 +291,7 @@
                         <table class="w-full text-left text-xs">
                             <thead>
                                 <tr class="border-b border-slate-800 text-slate-400">
-                                    <th class="pb-2 font-medium w-28">${t.thTicker}</th>
+                                    <th class="pb-2 font-medium w-36">${t.thTicker}</th>
                                     <th class="pb-2 font-medium w-16">${t.thCurrency}</th>
                                     <th class="pb-2 font-medium">${t.thShares}</th>
                                     <th class="pb-2 font-medium">${t.thCost}</th>
@@ -280,7 +313,7 @@
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="py-2.5 pr-2"><input type="text" value="${item.ticker}" oninput="saveData()" id="t-${catIdx}-${itemIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-indigo-300 font-bold uppercase focus:outline-none focus:border-indigo-500"></td>
+                        <td class="py-2.5 pr-2"><input type="text" value="${item.ticker}" oninput="saveData()" id="t-${catIdx}-${itemIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-indigo-300 font-bold focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2">
                             <select onchange="saveData()" id="cur-${catIdx}-${itemIdx}" class="bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-amber-300 font-bold focus:outline-none focus:border-indigo-500">
                                 <option value="CNY" ${item.currency==='CNY'?'selected':''}>CNY</option>
@@ -305,7 +338,7 @@
             const t = i18n[currentLang];
             const name = prompt(t.promptCat, t.promptCatDefault);
             if (!name) return;
-            portfolio.categories.push({ name: name, items: [{ ticker: 'NEW', currency: 'USD', shares: 10, cost: 100, price: 100 }] });
+            portfolio.categories.push({ name: name, items: [{ ticker: 'NEW ASSET', currency: 'USD', shares: 10, cost: 100, price: 100 }] });
             saveData();
             render();
         }
@@ -325,7 +358,7 @@
         }
 
         function addItem(catIdx) {
-            portfolio.categories[catIdx].items.push({ ticker: 'ASSET', currency: 'USD', shares: 10, cost: 50, price: 50 });
+            portfolio.categories[catIdx].items.push({ ticker: 'NEW', currency: 'USD', shares: 10, cost: 50, price: 50 });
             saveData();
             render();
         }
@@ -349,7 +382,7 @@
                     const p = document.getElementById(`p-${catIdx}-${itemIdx}`);
                     if (!t) return;
 
-                    item.ticker = t.value.trim().toUpperCase();
+                    item.ticker = t.value.trim();
                     item.currency = cur.value;
                     item.shares = Number(s.value) || 0;
                     item.cost = Number(c.value) || 0;
@@ -361,7 +394,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v7', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v8', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -382,6 +415,7 @@
             });
 
             let totalProfitCNY = totalValCNY - totalCostCNY;
+            let totalYieldPct = totalCostCNY > 0 ? (totalProfitCNY / totalCostCNY) * 100 : 0;
 
             document.getElementById('total-cost').innerText = `¥${totalCostCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
             document.getElementById('total-value').innerText = `¥${totalValCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
@@ -390,43 +424,51 @@
             pElem.innerText = `${totalProfitCNY >= 0 ? '+' : ''}¥${totalProfitCNY.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
             pElem.className = `text-sm font-bold ${totalProfitCNY >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            renderCharts(catTotals, totalValCNY, totalCostCNY);
+            const yElem = document.getElementById('total-yield');
+            yElem.innerText = `${totalYieldPct >= 0 ? '+' : ''}${totalYieldPct.toFixed(2)}%`;
+            yElem.className = `text-sm font-bold ${totalYieldPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            renderCharts(catTotals, totalValCNY, totalCostCNY, totalYieldPct);
         }
 
         function recordDailySnapshot() {
             let totalValCNY = 0;
+            let totalCostCNY = 0;
             portfolio.categories.forEach(cat => {
                 cat.items.forEach(item => {
                     const rate = getMultiplier(item.currency);
                     totalValCNY += item.shares * item.price * rate;
+                    totalCostCNY += item.shares * item.cost * rate;
                 });
             });
+
+            const totalYieldPct = totalCostCNY > 0 ? ((totalValCNY - totalCostCNY) / totalCostCNY) * 100 : 0;
 
             const now = new Date();
             const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
             
             if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].time.startsWith(timeStr.slice(0, 10))) {
-                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalValCNY };
+                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalValCNY, yieldPct: totalYieldPct };
             } else {
-                portfolio.history.push({ time: timeStr, value: totalValCNY });
+                portfolio.history.push({ time: timeStr, value: totalValCNY, yieldPct: totalYieldPct });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v7', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v8', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
-            alert(`${t.alertSnapshot} (${timeStr})：¥${totalValCNY.toFixed(2)}`);
+            alert(`${t.alertSnapshot} (${timeStr})：¥${totalValCNY.toFixed(2)} (${totalYieldPct >= 0 ? '+' : ''}${totalYieldPct.toFixed(2)}%)`);
         }
 
         function clearHistory() {
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v7', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v8', JSON.stringify(portfolio));
                 calculate();
             }
         }
 
-        function renderCharts(catTotals, totalVal, totalCost) {
+        function renderCharts(catTotals, totalVal, totalCost, currentYield) {
             const t = i18n[currentLang];
             const labels = Object.keys(catTotals);
             const values = Object.values(catTotals);
@@ -436,7 +478,7 @@
                 return `${l} (${pct}%)`;
             });
 
-            // 1. 环形图 (Pie/Doughnut Chart)
+            // 1. 环形图
             const ctxPie = document.getElementById('assetPieChart').getContext('2d');
             if (pieChart) pieChart.destroy();
             pieChart = new Chart(ctxPie, {
@@ -458,18 +500,24 @@
                 }
             });
 
-            // 2. 折线图 (Line Chart)
+            // 准备历史数据
             let timeLabels = [];
             let histValues = [];
+            let histYields = [];
 
-            if (portfolio.history && portfolio.history.length >= 2) {
-                timeLabels = portfolio.history.map(h => h.time);
-                histValues = portfolio.history.map(h => h.value);
+            const initialYield = totalCost > 0 ? ((totalVal - totalCost) / totalCost) * 100 : 0;
+
+            if (portfolio.history && portfolio.history.length >= 1) {
+                timeLabels = [t.initBase, ...portfolio.history.map(h => h.time)];
+                histValues = [totalCost, ...portfolio.history.map(h => h.value)];
+                histYields = [0, ...portfolio.history.map(h => h.yieldPct)];
             } else {
-                timeLabels = [t.initBase, portfolio.history.length === 1 ? portfolio.history[0].time : t.latest];
+                timeLabels = [t.initBase, t.latest];
                 histValues = [totalCost, totalVal];
+                histYields = [0, initialYield];
             }
 
+            // 2. 净值成长曲线
             const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
             lineChart = new Chart(ctxLine, {
@@ -478,12 +526,12 @@
                     labels: timeLabels,
                     datasets: [{
                         data: histValues,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.2,
-                        pointRadius: 4
+                        pointRadius: 3
                     }]
                 },
                 options: {
@@ -493,6 +541,41 @@
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 5 } },
                         y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    }
+                }
+            });
+
+            // 3. 收益率曲线 (%)
+            const ctxYield = document.getElementById('portfolioYieldChart').getContext('2d');
+            if (yieldChart) yieldChart.destroy();
+            yieldChart = new Chart(ctxYield, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        data: histYields,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 5 } },
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                            ticks: { 
+                                color: '#64748b', 
+                                font: { size: 9 },
+                                callback: function(value) { return value.toFixed(1) + '%'; }
+                            } 
+                        }
                     }
                 }
             });
