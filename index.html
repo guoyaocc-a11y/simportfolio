@@ -16,7 +16,7 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
-                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">Multi-Currency Terminal (Converted to CNY)</span></span>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal"></span></span>
             </div>
             <div class="flex items-center space-x-3">
                 <!-- Language Switch Button -->
@@ -25,14 +25,14 @@
                 </button>
                 <!-- Exchange Rate Setting Bar -->
                 <div class="hidden md:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
-                    <span class="text-slate-400" data-i18n="rate-label">💱 Rates:</span>
+                    <span class="text-slate-400" data-i18n="rateLabel">💱 汇率设定:</span>
                     <label class="text-slate-300">USD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-usd" value="7.25" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                     <label class="text-slate-300 ml-2">HKD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-hkd" value="0.93" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                 </div>
-                <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="add-category">
-                    + Add Category
+                <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="addCategory">
+                    + 新增大类资产
                 </button>
             </div>
         </div>
@@ -51,22 +51,22 @@
             <!-- Statistics & Snapshot -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-slate-300" data-i18n="overview-title">Portfolio Overview & Snapshot (Converted to CNY)</h3>
-                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshot-btn">
-                        📸 Record Today's Snapshot
+                    <h3 class="text-sm font-semibold text-slate-300" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
+                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshotBtn">
+                        📸 记录今日收盘净值
                     </button>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="label-cost">Initial Cost (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelCost">初始总投入 (¥)</span>
                         <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="label-value">Current Value (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelValue">当前总净值 (¥)</span>
                         <span id="total-value" class="text-sm font-bold text-white">¥0.00</span>
                     </div>
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="label-profit">Total Profit/Loss (¥)</span>
+                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
                         <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
 
             <!-- Pie Chart -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-sm font-semibold text-slate-200 mb-3" data-i18n="pie-title">Asset Allocation (By CNY Market Value)</h3>
+                <h3 class="text-sm font-semibold text-slate-200 mb-3" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
                 <div class="relative h-[200px] w-full flex items-center justify-center">
                     <canvas id="assetPieChart"></canvas>
                 </div>
@@ -83,8 +83,8 @@
             <!-- Line Chart -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-slate-200" data-i18n="line-title">Historical Value Growth Curve (CNY)</h3>
-                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline" data-i18n="clear-history">Clear History</button>
+                    <h3 class="text-sm font-semibold text-slate-200" data-i18n="lineTitle">历史净值成长曲线 (人民币)</h3>
+                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">清空历史记录</button>
                 </div>
                 <div class="relative h-[180px] w-full flex items-center justify-center">
                     <canvas id="portfolioLineChart"></canvas>
@@ -96,7 +96,7 @@
 
     <!-- Core Script -->
     <script>
-        // Multi-language Dictionaries (Comprehensive)
+        // 全局多语言字典
         const i18n = {
             zh: {
                 pageTitle: "SimPortfolio - 全球私人资产多币种终端",
@@ -174,15 +174,15 @@
             }
         };
 
-        let currentLang = localStorage.getItem('sim_lang') || 'en';
+        // 默认语言初始化（如果没有记录则默认中文）
+        let currentLang = localStorage.getItem('sim_lang') || 'zh';
 
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v6')) || {
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v7')) || {
             rates: { usd: 7.25, hkd: 0.93 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
         };
 
-        // Initialize rates input
         document.getElementById('rate-usd').value = portfolio.rates.usd;
         document.getElementById('rate-hkd').value = portfolio.rates.hkd;
 
@@ -194,16 +194,17 @@
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             localStorage.setItem('sim_lang', currentLang);
 
-            // Automatically sync default category headers when switching language
+            // 智能映射默认板块名称，防止切换时板块名错乱
             portfolio.categories.forEach(cat => {
-                if (oldLang === 'zh' && cat.name === '📈 股票类资产') cat.name = '📈 Equities';
-                else if (oldLang === 'en' && cat.name === '📈 Equities') cat.name = '📈 股票类资产';
-
-                if (oldLang === 'zh' && cat.name === '🪙 加密货币与合约') cat.name = '🪙 Crypto & Futures';
-                else if (oldLang === 'en' && cat.name === '🪙 Crypto & Futures') cat.name = '🪙 加密货币与合约';
-
-                if (oldLang === 'zh' && cat.name === '🥇 大宗类') cat.name = '🥇 Commodities';
-                else if (oldLang === 'en' && cat.name === '🥇 Commodities') cat.name = '🥇 大宗类';
+                if (oldLang === 'zh') {
+                    if (cat.name === '📈 股票类资产') cat.name = '📈 Equities';
+                    else if (cat.name === '🪙 加密货币与合约') cat.name = '🪙 Crypto & Futures';
+                    else if (cat.name === '🥇 大宗类') cat.name = '🥇 Commodities';
+                } else {
+                    if (cat.name === '📈 Equities') cat.name = '📈 股票类资产';
+                    else if (cat.name === '🪙 Crypto & Futures') cat.name = '🪙 加密货币与合约';
+                    else if (cat.name === '🥇 Commodities') cat.name = '🥇 大宗类';
+                }
             });
 
             saveData();
@@ -216,7 +217,7 @@
             document.getElementById('nav-subtitle').innerText = t.navSubtitle;
             document.getElementById('lang-btn').innerText = t.langBtn;
             
-            // Batch update all elements with data-i18n attribute (including right panel titles, buttons, etc.)
+            // 遍历所有带有 data-i18n 属性的标签进行全域翻译更新
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.innerText = t[key];
@@ -232,7 +233,7 @@
         function getMultiplier(currency) {
             if (currency === 'USD') return portfolio.rates.usd;
             if (currency === 'HKD') return portfolio.rates.hkd;
-            return 1; // CNY
+            return 1;
         }
 
         function render() {
@@ -360,7 +361,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v6', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v7', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -410,7 +411,7 @@
                 portfolio.history.push({ time: timeStr, value: totalValCNY });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v6', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v7', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：¥${totalValCNY.toFixed(2)}`);
@@ -420,7 +421,7 @@
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v6', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v7', JSON.stringify(portfolio));
                 calculate();
             }
         }
@@ -435,7 +436,7 @@
                 return `${l} (${pct}%)`;
             });
 
-            // 1. Doughnut Chart
+            // 1. 环形图 (Pie/Doughnut Chart)
             const ctxPie = document.getElementById('assetPieChart').getContext('2d');
             if (pieChart) pieChart.destroy();
             pieChart = new Chart(ctxPie, {
@@ -457,7 +458,7 @@
                 }
             });
 
-            // 2. Line Chart (with initial cost baseline)
+            // 2. 折线图 (Line Chart)
             let timeLabels = [];
             let histValues = [];
 
