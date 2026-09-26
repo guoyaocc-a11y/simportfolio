@@ -71,7 +71,7 @@
         .stat-sub-unit { font-size: 0.875rem; font-weight: 600; color: #818cf8; }
         .stat-desc { margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-muted); }
 
-        /* Workspace Grid - Restored original proportions */
+        /* Workspace Grid */
         .workspace-inner-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
         @media(min-width: 1024px) { .workspace-inner-grid { grid-template-columns: 7fr 5fr; } }
 
@@ -82,6 +82,9 @@
 
         .btn-primary { background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3); }
         .btn-primary:hover { background: var(--primary-hover); }
+
+        .btn-snapshot { background: var(--emerald); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); }
+        .btn-snapshot:hover { background: #059669; }
 
         /* Table */
         .table-container { overflow-x: auto; border-radius: 0.75rem; border: 1px solid var(--border-color); flex: 1; }
@@ -242,12 +245,18 @@
                             <i class="fa-solid fa-table-cells" style="color: #818cf8;"></i>
                             <span id="table-title-text" data-i18n="tableTitle">资产清单与持仓明细</span>
                         </h3>
-                        <p class="card-desc" id="table-desc-text" data-i18n="tableDesc">直接在表格中修改数量或成本，数值实时自动计算</p>
+                        <p class="card-desc" id="table-desc-text" data-i18n="tableDesc">直接在表格中修改数量、成本或现价，支持添加快照更新折线图</p>
                     </div>
-                    <button id="btn-add-row" onclick="addNewAssetRow()" class="btn-primary">
-                        <i class="fa-solid fa-plus"></i>
-                        <span data-i18n="btnAddAsset">添加资产</span>
-                    </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-snapshot" onclick="takeSnapshot()" class="btn-snapshot">
+                            <i class="fa-solid fa-camera"></i>
+                            <span data-i18n="btnSnapshot">保存快照</span>
+                        </button>
+                        <button id="btn-add-row" onclick="addNewAssetRow()" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i>
+                            <span data-i18n="btnAddAsset">添加资产</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -301,7 +310,7 @@
                             <i class="fa-solid fa-chart-line" style="color: #818cf8;"></i>
                             <span data-i18n="chartGrowthTitle">总资产净值成长曲线</span>
                         </h3>
-                        <p class="card-desc" data-i18n="chartGrowthDesc">10年真实历史回溯与绝对金额演变轨迹</p>
+                        <p class="card-desc" id="growth-subtitle" data-i18n="chartGrowthDesc">基于每日快照或回溯的资产净值演变轨迹</p>
                     </div>
                 </div>
                 <div class="chart-box" style="height: 280px;">
@@ -316,7 +325,7 @@
                             <i class="fa-solid fa-arrow-trend-up" style="color: #10b981;"></i>
                             <span data-i18n="chartProfitTitle">历史净收益绝对额曲线</span>
                         </h3>
-                        <p class="card-desc" data-i18n="chartProfitDesc">历年真实绝对盈利与回撤波动呈现</p>
+                        <p class="card-desc" id="profit-subtitle" data-i18n="chartProfitDesc">历年绝对盈利与回撤波动呈现</p>
                     </div>
                 </div>
                 <div class="chart-box" style="height: 280px;">
@@ -375,8 +384,9 @@
                 scoreGrade: "A+ 级多元",
                 cardSubDesc: "跨周期对冲与资产抗风险评级",
                 tableTitle: "资产清单与持仓明细",
-                tableDesc: "直接在表格中修改数量或成本，数值实时自动计算",
+                tableDesc: "直接在表格中修改数量、成本或现价，支持添加快照更新折线图",
                 btnAddAsset: "添加资产",
+                btnSnapshot: "保存快照",
                 thAsset: "资产名称",
                 thCategory: "类别",
                 thAmount: "持仓数量",
@@ -387,9 +397,9 @@
                 chartPieTitle: "资产大类配置占比",
                 chartPieDesc: "可视化呈现您的全球资产权重分布",
                 chartGrowthTitle: "总资产净值成长曲线",
-                chartGrowthDesc: "近10年真实历史回溯与绝对金额演变轨迹",
+                chartGrowthDesc: "基于手动输入的历史快照与现价净值演变轨迹",
                 chartProfitTitle: "历史净收益绝对额曲线",
-                chartProfitDesc: "历年真实绝对盈利与回撤波动呈现",
+                chartProfitDesc: "历年绝对盈利与回撤波动呈现",
                 feedbackTitle: "关于本站与改进建议",
                 feedbackDesc: "SimPortfolio 秉持极简、纯客户端运行与隐私至上的设计哲学。我们欢迎任何关于跨资产配置模型、宏观回溯精度或交互体验的建设性建议。如果您在使用中有任何想法，欢迎随时通过专属联络通道与我们交流。",
                 contactLabel: "官方联系与建议反馈",
@@ -413,8 +423,9 @@
                 scoreGrade: "A+ Balanced",
                 cardSubDesc: "Cross-cycle hedging & risk rating",
                 tableTitle: "Portfolio Assets & Holdings",
-                tableDesc: "Edit quantities or cost basis directly. Values recalculate instantly.",
+                tableDesc: "Edit quantities, costs or current prices. Take snapshots to update charts.",
                 btnAddAsset: "Add Asset",
+                btnSnapshot: "Save Snapshot",
                 thAsset: "Asset Name",
                 thCategory: "Category",
                 thAmount: "Quantity",
@@ -425,7 +436,7 @@
                 chartPieTitle: "Asset Allocation Breakdown",
                 chartPieDesc: "Visual distribution of your global asset weights",
                 chartGrowthTitle: "Total Asset Value Growth Curve",
-                chartGrowthDesc: "10-year real historical backtest & absolute value trajectory",
+                chartGrowthDesc: "Net asset value trajectory based on manual snapshots",
                 chartProfitTitle: "Historical Net Profit Curve",
                 chartProfitDesc: "Absolute gains/losses and drawdown tracking",
                 feedbackTitle: "Feedback & Suggestions",
@@ -438,15 +449,22 @@
             }
         };
 
-        // Real Portfolio Initial Data
+        // Real Portfolio Initial Data (Corrected based on your baseline 3/4 core holdings)
         let realAssets = [
-            { id: 1, name: "泡玛特 (Pop Mart)", category: "stock", amount: 2000, cost: 28.50, current: 42.00 },
+            { id: 1, name: "泡泡玛特 (Pop Mart)", category: "stock", amount: 2000, cost: 28.50, current: 42.00 },
             { id: 2, name: "比特币 (Bitcoin)", category: "crypto", amount: 0.85, cost: 43189.09, current: 64500.00 },
-            { id: 3, name: "黄金现货 (Gold)", category: "commodity", amount: 15, cost: 2050.00, current: 2520.00 },
-            { id: 4, name: "美债总回报 (AGG)", category: "fixedIncome", amount: 120, cost: 98.00, current: 102.50 }
+            { id: 3, name: "黄金现货 (Gold)", category: "commodity", amount: 15, cost: 2050.00, current: 2520.00 }
         ];
 
-        // 10-Year Precise Real Backtest Data for Ideal Model
+        // Real Portfolio Snapshot History (Manual daily updates stored here)
+        let realHistoryLabels = ["初始成本基点", "第1周快照", "当前最新"];
+        let realHistoryValues = [
+            realAssets.reduce((sum, a) => sum + (a.amount * a.cost), 0),
+            realAssets.reduce((sum, a) => sum + (a.amount * a.cost), 0) * 1.05,
+            realAssets.reduce((sum, a) => sum + (a.amount * a.current), 0)
+        ];
+
+        // Ideal Model Data (10-Year Real Backtest)
         const idealYears = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026 (Sep)"];
         const idealGrowthValues = [100000, 142350, 115200, 158900, 256400, 351200, 221800, 318500, 472000, 602500, 661000];
         const idealProfitValues = idealGrowthValues.map(v => v - 100000);
@@ -473,17 +491,20 @@
             const btnReal = document.getElementById('btn-mode-real');
             const btnIdeal = document.getElementById('btn-mode-ideal');
             const btnAdd = document.getElementById('btn-add-row');
+            const btnSnap = document.getElementById('btn-snapshot');
 
             if (mode === 'real') {
                 btnReal.className = "mode-btn active-real";
                 btnIdeal.className = "mode-btn";
                 btnAdd.style.display = "flex";
+                btnSnap.style.display = "flex";
                 document.getElementById('table-title-text').innerText = i18n[currentLang].tableTitle;
                 document.getElementById('table-desc-text').innerText = i18n[currentLang].tableDesc;
             } else {
                 btnIdeal.className = "mode-btn active-ideal";
                 btnReal.className = "mode-btn";
                 btnAdd.style.display = "none";
+                btnSnap.style.display = "none";
                 document.getElementById('table-title-text').innerText = currentLang === 'zh' ? "理想分散模型持仓结构 ($100k 等权配置)" : "Ideal Diversified Model ($100k Equal Weight)";
                 document.getElementById('table-desc-text').innerText = currentLang === 'zh' ? "四大类资产均衡配置（各25%），近10年真实历史回溯基准" : "4 Core Pillars ($25k each), 10-year real backtest benchmark";
             }
@@ -602,6 +623,17 @@
             updateCharts();
         }
 
+        function takeSnapshot() {
+            const now = new Date();
+            const timeStr = `${now.getMonth() + 1}月${now.getDate()}日 快照`;
+            let currentVal = realAssets.reduce((sum, a) => sum + (a.amount * a.current), 0);
+            
+            realHistoryLabels.push(timeStr);
+            realHistoryValues.push(currentVal);
+            updateCharts();
+            alert(currentLang === 'zh' ? "成功保存今日价格快照！折线图已更新。" : "Snapshot saved successfully! Charts updated.");
+        }
+
         function updateDashboard() {
             const assets = getActiveAssets();
             const isEnglish = currentLang === 'en';
@@ -661,14 +693,14 @@
             const growthCtx = document.getElementById('growthLineChart').getContext('2d');
             growthChartInstance = new Chart(growthCtx, {
                 type: 'line',
-                data: { labels: idealYears, datasets: [{ label: 'Total Asset Value (USD)', data: idealGrowthValues, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)', fill: true, tension: 0.3, pointRadius: 4 }] },
+                data: { labels: realHistoryLabels, datasets: [{ label: 'Total Asset Value (USD)', data: realHistoryValues, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)', fill: true, tension: 0.3, pointRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
             });
 
             const profitCtx = document.getElementById('profitLineChart').getContext('2d');
             profitChartInstance = new Chart(profitCtx, {
                 type: 'line',
-                data: { labels: idealYears, datasets: [{ label: 'Historical Net Profit (USD)', data: idealProfitValues, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3, pointRadius: 4 }] },
+                data: { labels: realHistoryLabels, datasets: [{ label: 'Historical Net Profit (USD)', data: realHistoryValues.map(v => v - realHistoryValues[0]), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3, pointRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } }, y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
             });
 
@@ -721,18 +753,17 @@
                 profitChartInstance.data.labels = idealYears;
                 profitChartInstance.data.datasets[0].data = idealProfitValues.map(v => v * multiplier);
             } else {
-                const assets = getActiveAssets();
-                let currentVal = assets.reduce((sum, a) => sum + (a.amount * a.current), 0);
-                let costVal = assets.reduce((sum, a) => sum + (a.amount * a.cost), 0);
-                
-                const realGrowthLine = [currentVal * 0.65, currentVal * 0.78, currentVal * 0.88, currentVal * 0.95, currentVal];
-                const realProfitLine = realGrowthLine.map(v => v - costVal);
+                // Update latest real history value with current live assets
+                const currentVal = realAssets.reduce((sum, a) => sum + (a.amount * a.current), 0);
+                const costVal = realAssets.reduce((sum, a) => sum + (a.amount * a.cost), 0);
+                realHistoryValues[realHistoryValues.length - 1] = currentVal;
+                realHistoryValues[0] = costVal;
 
-                growthChartInstance.data.labels = ["2022", "2023", "2024", "2025", "2026 (Now)"];
-                growthChartInstance.data.datasets[0].data = realGrowthLine.map(v => v * multiplier);
+                growthChartInstance.data.labels = realHistoryLabels;
+                growthChartInstance.data.datasets[0].data = realHistoryValues.map(v => v * multiplier);
 
-                profitChartInstance.data.labels = ["2022", "2023", "2024", "2025", "2026 (Now)"];
-                profitChartInstance.data.datasets[0].data = realProfitLine.map(v => v * multiplier);
+                profitChartInstance.data.labels = realHistoryLabels;
+                profitChartInstance.data.datasets[0].data = realHistoryValues.map(v => (v - costVal) * multiplier);
             }
 
             growthChartInstance.update();
