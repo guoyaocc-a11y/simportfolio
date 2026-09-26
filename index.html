@@ -1,119 +1,346 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simportfolio | Global Asset Allocation Dashboard</title>
-    <!-- Plotly CDN -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <!-- Tailwind 快速美化 -->
+    <title>SimPortfolio - 极简私人资产终端</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 max-w-7xl mx-auto p-4 md:p-6">
-    <h1 class="text-3xl font-bold text-center my-4">📊 Simportfolio 全球分散投资看板</h1>
-    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-6">
-        <p class="text-amber-800">⚠️ Data from Yahoo Finance, delayed. For educational demonstration only, <strong>NOT investment advice</strong>. USO crude oil ETF has roll yield risk.</p >
-    </div>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
 
-    <!-- 汇总指标卡片 -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white p-4 rounded shadow">
-            <div class="text-gray-500">Total Cost</div>
-            <div id="totalCost" class="text-xl font-semibold">$0.00</div>
+    <!-- 顶部导航 -->
+    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span class="text-indigo-400 text-sm ml-2 font-normal">私人资产终端</span></span>
+            </div>
+            <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow">
+                + 新增大类资产
+            </button>
         </div>
-        <div class="bg-white p-4 rounded shadow">
-            <div class="text-gray-500">Current Value</div>
-            <div id="totalValue" class="text-xl font-semibold">$0.00</div>
-        </div>
-        <div class="bg-white p-4 rounded shadow">
-            <div class="text-gray-500">Total PnL</div>
-            <div id="totalPnl" class="text-xl font-semibold">$0.00</div>
-        </div>
-        <div class="bg-white p-4 rounded shadow">
-            <div class="text-gray-500">Total Return</div>
-            <div id="totalPnlPct" class="text-xl font-semibold">0.00%</div>
-        </div>
-    </div>
+    </header>
 
-    <!-- 持仓表格 -->
-    <div class="bg-white p-4 rounded shadow mb-6 overflow-x-auto">
-        <h2 class="text-xl font-semibold mb-3">持仓明细 / Holdings</h2>
-        <table class="w-full text-sm">
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="p-2 text-left">Asset</th>
-                    <th class="p-2 text-left">Ticker</th>
-                    <th class="p-2 text-right">Cost Price</th>
-                    <th class="p-2 text-right">Shares</th>
-                    <th class="p-2 text-right">Cost Total</th>
-                    <th class="p-2 text-right">Latest Price</th>
-                    <th class="p-2 text-right">Market Value</th>
-                    <th class="p-2 text-right">PnL</th>
-                    <th class="p-2 text-right">PnL %</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+    <!-- 主体内容 -->
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- 左侧资产列表 (7列) -->
+        <section id="categories-container" class="lg:col-span-7 space-y-6">
+            <!-- 动态渲染大类 -->
+        </section>
 
-    <!-- 饼图：资产占比 -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-        <h2 class="text-xl font-semibold mb-3">🥧 资产市值占比 Asset Allocation</h2>
-        <div id="pieChart" style="height:450px;"></div>
-    </div>
+        <!-- 右侧看板与图表 (5列) -->
+        <section class="lg:col-span-5 space-y-6 sticky top-20 h-fit">
+            <!-- 统计与打卡 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-300">资产总览与收盘记录</h3>
+                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow">
+                        📸 记录今日收盘净值
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] text-slate-400 block mb-1">初始总投入</span>
+                        <span id="total-cost" class="text-sm font-bold text-slate-200">$0.00</span>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] text-slate-400 block mb-1">当前总净值</span>
+                        <span id="total-value" class="text-sm font-bold text-white">$0.00</span>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                        <span class="text-[10px] text-slate-400 block mb-1">总浮动盈亏</span>
+                        <span id="total-profit" class="text-sm font-bold text-emerald-400">+$0.00</span>
+                    </div>
+                </div>
+            </div>
 
-    <!-- 组合净值折线图 -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-        <h2 class="text-xl font-semibold mb-3">📈 组合净值曲线 Portfolio Net Value</h2>
-        <div id="lineChart" style="height:450px;"></div>
-    </div>
+            <!-- 饼状图 (带百分比) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-sm font-semibold text-slate-200 mb-3">大类资产配置比例</h3>
+                <div class="relative h-[200px] w-full flex items-center justify-center">
+                    <canvas id="assetPieChart"></canvas>
+                </div>
+            </div>
 
-    <!-- 单资产对比图 -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-        <h2 class="text-xl font-semibold mb-3">📉 单资产净值对比 Individual Assets</h2>
-        <div id="compareChart" style="height:450px;"></div>
-    </div>
+            <!-- 折线图 (真实时间轴) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-slate-200">历史净值成长曲线</h3>
+                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline">清空历史记录</button>
+                </div>
+                <div class="relative h-[180px] w-full flex items-center justify-center">
+                    <canvas id="portfolioLineChart"></canvas>
+                </div>
+            </div>
+        </section>
 
-<script>
-// ========== 在这里修改你的投资组合（和之前结构一致）==========
-const portfolioRaw = [
-    {name:"Apple(US)", ticker:"AAPL", cost_price:180.0, shares:10},
-    {name:"Tencent(HK)", ticker:"00700.HK", cost_price:320.0, shares:20},
-    {name:"Moutai(A-SH)", ticker:"600519.SS", cost_price:1700.0, shares:5},
-    {name:"Bitcoin", ticker:"BTC-USD", cost_price:65000.0, shares:0.1},
-    {name:"GLD Gold ETF", ticker:"GLD", cost_price:185.0, shares:20},
-    {name:"USO Oil ETF", ticker:"USO", cost_price:72.0, shares:25}
-];
-const startDate = "2024-01-01";
-// =============================================================
+    </main>
 
-// Yahoo Finance 代理（前端直接请求，免费公开CORS代理）
-async function fetchYahooData(ticker, start, end) {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?period1=${Math.floor(new Date(start).getTime()/1000)}&period2=${Math.floor(new Date(end).getTime()/1000)}&interval=1d`;
-    const res = await fetch(url);
-    const json = await res.json();
-    const times = json.chart.result[0].timestamp;
-    const closes = json.chart.result[0].indicators.quote[0].close;
-    const out = [];
-    for(let i=0;i<times.length;i++){
-        if(closes[i]!==null) out.push({t:new Date(times[i]*1000), c:closes[i]});
-    }
-    return out;
-}
+    <!-- 核心脚本 -->
+    <script>
+        let portfolio = JSON.parse(localStorage.getItem('sim_pure_portfolio_v1')) || {
+            categories: [
+                {
+                    name: '📈 股票类资产',
+                    items: [
+                        { ticker: 'QQQ', shares: 40, cost: 420, price: 440 },
+                        { ticker: 'AAPL', shares: 20, cost: 175, price: 185 }
+                    ]
+                },
+                {
+                    name: '🪙 加密货币',
+                    items: [
+                        { ticker: 'BTC', shares: 0.1, cost: 60000, price: 65000 }
+                    ]
+                },
+                {
+                    name: '💵 现金存款',
+                    items: [
+                        { ticker: '现金余额', shares: 1, cost: 50000, price: 50000 }
+                    ]
+                }
+            ],
+            history: [] // [{time: '2026-09-25 15:30', value: 125000}]
+        };
 
-// 主逻辑
-(async function(){
-    const endDate = new Date().toISOString().split('T')[0];
-    const tickerList = portfolioRaw.map(x=>x.ticker);
-    const historyMap = {};
-    for(const t of tickerList){
-        historyMap[t] = await fetchYahooData(t, startDate, endDate);
-    }
+        let pieChart = null;
+        let lineChart = null;
 
-    // 计算持仓表格
-    let totalCost = 0, totalValue = 0;
-    const tableRows = [];
-    const pieLabels = [], pieValues = [];
-    portfolioRaw.forEach(asset=>{
-        const hist = historyMap[asset.ticker];
-    
+        function render() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            portfolio.categories.forEach((cat, catIdx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <input type="text" value="${cat.name}" onchange="updateCatName(${catIdx}, this.value)" 
+                               class="bg-transparent text-sm font-bold text-slate-200 border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1">
+                        <div class="flex space-x-2">
+                            <button onclick="addItem(${catIdx})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">+ 添加标的</button>
+                            <button onclick="removeCat(${catIdx})" class="text-xs text-rose-400 hover:text-rose-300 px-1.5 py-1 bg-rose-950/30 rounded border border-rose-900/50">删除板块</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400">
+                                    <th class="pb-2 font-medium w-28">代码/名称</th>
+                                    <th class="pb-2 font-medium">数量</th>
+                                    <th class="pb-2 font-medium">成本价</th>
+                                    <th class="pb-2 font-medium">当前单价</th>
+                                    <th class="pb-2 font-medium">当前市值</th>
+                                    <th class="pb-2 font-medium text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-${catIdx}" class="divide-y divide-slate-800/50"></tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                const tbody = document.getElementById(`tbody-${catIdx}`);
+                cat.items.forEach((item, itemIdx) => {
+                    const mVal = item.shares * item.price;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="py-2.5 pr-2"><input type="text" value="${item.ticker}" oninput="saveData()" id="t-${catIdx}-${itemIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-indigo-300 font-bold uppercase focus:outline-none focus:border-indigo-500"></td>
+                        <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.shares}" oninput="saveData()" id="s-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
+                        <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.cost}" oninput="saveData()" id="c-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
+                        <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.price}" oninput="saveData()" id="p-${catIdx}-${itemIdx}" class="w-24 bg-slate-950 border border-indigo-900/80 rounded px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"></td>
+                        <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium" id="v-${catIdx}-${itemIdx}">$${mVal.toFixed(2)}</td>
+                        <td class="py-2.5 text-right"><button onclick="removeItem(${catIdx}, ${itemIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">删除</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+
+            calculate();
+        }
+
+        function addNewCategory() {
+            const name = prompt('请输入新大类名称（例如：债券类、期货类）：', '债券类');
+            if (!name) return;
+            portfolio.categories.push({ name: name, items: [{ ticker: 'NEW', shares: 10, cost: 100, price: 100 }] });
+            saveData();
+            render();
+        }
+
+        function updateCatName(catIdx, val) {
+            portfolio.categories[catIdx].name = val;
+            saveData();
+        }
+
+        function removeCat(catIdx) {
+            if (confirm('确定删除该大类及所有明细吗？')) {
+                portfolio.categories.splice(catIdx, 1);
+                saveData();
+                render();
+            }
+        }
+
+        function addItem(catIdx) {
+            portfolio.categories[catIdx].items.push({ ticker: 'ASSET', shares: 10, cost: 50, price: 50 });
+            saveData();
+            render();
+        }
+
+        function removeItem(catIdx, itemIdx) {
+            portfolio.categories[catIdx].items.splice(itemIdx, 1);
+            saveData();
+            render();
+        }
+
+        function saveData() {
+            portfolio.categories.forEach((cat, catIdx) => {
+                cat.items.forEach((item, itemIdx) => {
+                    const t = document.getElementById(`t-${catIdx}-${itemIdx}`);
+                    const s = document.getElementById(`s-${catIdx}-${itemIdx}`);
+                    const c = document.getElementById(`c-${catIdx}-${itemIdx}`);
+                    const p = document.getElementById(`p-${catIdx}-${itemIdx}`);
+                    if (!t) return;
+
+                    item.ticker = t.value.trim().toUpperCase();
+                    item.shares = Number(s.value) || 0;
+                    item.cost = Number(c.value) || 0;
+                    item.price = Number(p.value) || 0;
+
+                    const mVal = item.shares * item.price;
+                    document.getElementById(`v-${catIdx}-${itemIdx}`).innerText = `$${mVal.toFixed(2)}`;
+                });
+            });
+
+            localStorage.setItem('sim_pure_portfolio_v1', JSON.stringify(portfolio));
+            calculate();
+        }
+
+        function calculate() {
+            let totalVal = 0;
+            let totalCost = 0;
+            let catTotals = {};
+
+            portfolio.categories.forEach(cat => {
+                let cVal = 0;
+                cat.items.forEach(item => {
+                    cVal += item.shares * item.price;
+                    totalCost += item.shares * item.cost;
+                });
+                totalVal += cVal;
+                catTotals[cat.name] = cVal;
+            });
+
+            let totalProfit = totalVal - totalCost;
+
+            document.getElementById('total-cost').innerText = `$${totalCost.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
+            document.getElementById('total-value').innerText = `$${totalVal.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
+            
+            const pElem = document.getElementById('total-profit');
+            pElem.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toLocaleString('en-US', {maximumFractionDigits: 2})}`;
+            pElem.className = `text-sm font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            renderCharts(catTotals, totalVal);
+        }
+
+        function recordDailySnapshot() {
+            let totalVal = 0;
+            portfolio.categories.forEach(cat => {
+                cat.items.forEach(item => {
+                    totalVal += item.shares * item.price;
+                });
+            });
+
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].time.startsWith(timeStr.slice(0, 10))) {
+                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalVal };
+            } else {
+                portfolio.history.push({ time: timeStr, value: totalVal });
+            }
+
+            localStorage.setItem('sim_pure_portfolio_v1', JSON.stringify(portfolio));
+            calculate();
+            alert(`✅ 已记录收盘快照 (${timeStr})：$${totalVal.toFixed(2)}`);
+        }
+
+        function clearHistory() {
+            if (confirm('确定清空所有历史快照吗？')) {
+                portfolio.history = [];
+                localStorage.setItem('sim_pure_portfolio_v1', JSON.stringify(portfolio));
+                calculate();
+            }
+        }
+
+        function renderCharts(catTotals, totalVal) {
+            const labels = Object.keys(catTotals);
+            const values = Object.values(catTotals);
+            
+            const formattedLabels = labels.map((l, i) => {
+                const pct = totalVal > 0 ? ((values[i] / totalVal) * 100).toFixed(1) : 0;
+                return `${l} (${pct}%)`;
+            });
+
+            // 1. 饼图
+            const ctxPie = document.getElementById('assetPieChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: formattedLabels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#6366f1', '#f59e0b', '#a855f7', '#10b981', '#ec4899', '#38bdf8'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } 
+                    }
+                }
+            });
+
+            // 2. 折线图
+            const history = portfolio.history || [];
+            const timeLabels = history.length > 0 ? history.map(h => h.time) : ['初始建仓'];
+            const histValues = history.length > 0 ? history.map(h => h.value) : [totalVal];
+
+            const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
+            if (lineChart) lineChart.destroy();
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        data: histValues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 5 } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        window.onload = () => render();
+    </script>
+</body>
+</html>
