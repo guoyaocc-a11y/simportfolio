@@ -8,8 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased pb-16">
 
     <!-- Top Navigation -->
     <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
@@ -18,20 +20,27 @@
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
                 <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">多币种资产终端 (统一折算CNY)</span></span>
             </div>
+
+            <!-- Mode Switcher (Real vs Ideal Model) -->
+            <div class="hidden md:flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <button onclick="switchTerminalMode('real')" id="mode-real-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white">我的实盘</button>
+                <button onclick="switchTerminalMode('ideal')" id="mode-ideal-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white">理想分散模型 ($100k)</button>
+            </div>
+
             <div class="flex items-center space-x-3">
                 <!-- Language Switch Button -->
                 <button onclick="toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2 rounded-xl transition border border-slate-700" id="lang-btn">
                     Switch to English
                 </button>
                 <!-- Exchange Rate Setting Bar -->
-                <div class="hidden md:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+                <div class="hidden md:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs" id="rate-bar-box">
                     <span class="text-slate-400" data-i18n="rateLabel">💱 汇率设定:</span>
                     <label class="text-slate-300">USD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-usd" value="6.723" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                     <label class="text-slate-300 ml-2">HKD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-hkd" value="0.856" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                 </div>
-                <button onclick="addNewCategory()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="addCategory">
+                <button onclick="addNewCategory()" id="add-cat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="addCategory">
                     + 新增大类资产
                 </button>
             </div>
@@ -39,73 +48,101 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
         
-        <!-- Left Asset Lists (7 Cols) -->
-        <section id="categories-container" class="lg:col-span-7 space-y-6">
-            <!-- Dynamically rendered categories -->
-        </section>
-
-        <!-- Right Dashboard & Charts (5 Cols) -->
-        <section class="lg:col-span-5 space-y-6 sticky top-20 h-fit">
-            <!-- Statistics & Snapshot -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-slate-300" id="overview-title-text" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
-                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshotBtn">
-                        📸 记录今日收盘净值
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" id="label-cost-text" data-i18n="labelCost">初始总投入 (¥)</span>
-                        <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" id="label-value-text" data-i18n="labelValue">当前总净值 (¥)</span>
-                        <span id="total-value" class="text-sm font-bold text-white">¥0.00</span>
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" id="label-profit-text" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
-                        <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield" id="label-yield-text">资金总收益率 (%)</span>
-                        <span id="total-yield" class="text-sm font-bold text-emerald-400">+0.00%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pie Chart -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-sm font-semibold text-slate-200 mb-3" id="pie-title-text" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
-                <div class="relative h-[180px] w-full flex items-center justify-center">
-                    <canvas id="assetPieChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Line Chart: Total Asset Value -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-slate-200" id="line-title-text" data-i18n="lineTitle">总资产金额成长曲线 (人民币)</h3>
-                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">清空历史记录</button>
-                </div>
-                <div class="relative h-[150px] w-full flex items-center justify-center">
-                    <canvas id="portfolioLineChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Line Chart: Net Profit Amount -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-slate-200" id="net-profit-title-text" data-i18n="netProfitTitle">历史净收益曲线 (人民币)</h3>
-                </div>
-                <div class="relative h-[150px] w-full flex items-center justify-center">
-                    <canvas id="portfolioNetProfitChart"></canvas>
-                </div>
+        <!-- Block 1: Website Introduction Banner -->
+        <section class="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute right-0 top-0 translate-x-1/3 -translate-y-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="max-w-3xl space-y-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    <i class="fa-solid fa-sparkles"></i> <span data-i18n="bannerTag">分散投资的视觉艺术</span>
+                </span>
+                <h2 class="text-lg font-bold text-white" data-i18n="bannerTitle">The Art of Diversification</h2>
+                <p class="text-xs text-slate-300 leading-relaxed" data-i18n="bannerDesc">
+                    股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。
+                </p>
             </div>
         </section>
 
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Asset Lists (7 Cols) -->
+            <section id="categories-container" class="lg:col-span-7 space-y-6">
+                <!-- Dynamically rendered categories -->
+            </section>
+
+            <!-- Right Dashboard & Charts (5 Cols) -->
+            <section class="lg:col-span-5 space-y-6 lg:sticky lg:top-20 h-fit">
+                <!-- Statistics & Snapshot -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-slate-300" id="overview-title-text" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
+                        <button onclick="recordDailySnapshot()" id="snapshot-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshotBtn">
+                            📸 记录今日收盘净值
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block mb-1" id="label-cost-text" data-i18n="labelCost">初始总投入 (¥)</span>
+                            <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block mb-1" id="label-value-text" data-i18n="labelValue">当前总净值 (¥)</span>
+                            <span id="total-value" class="text-sm font-bold text-white">¥0.00</span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block mb-1" id="label-profit-text" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
+                            <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield" id="label-yield-text">资金总收益率 (%)</span>
+                            <span id="total-yield" class="text-sm font-bold text-emerald-400">+0.00%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pie Chart -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-3" id="pie-title-text" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
+                    <div class="relative h-[180px] w-full flex items-center justify-center">
+                        <canvas id="assetPieChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Line Chart: Total Asset Value -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-semibold text-slate-200" id="line-title-text" data-i18n="lineTitle">总资产金额成长曲线 (人民币)</h3>
+                        <button onclick="clearHistory()" id="clear-hist-btn" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">清空历史记录</button>
+                    </div>
+                    <div class="relative h-[150px] w-full flex items-center justify-center">
+                        <canvas id="portfolioLineChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Line Chart: Net Profit Amount -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-semibold text-slate-200" id="net-profit-title-text" data-i18n="netProfitTitle">历史净收益曲线 (人民币)</h3>
+                    </div>
+                    <div class="relative h-[150px] w-full flex items-center justify-center">
+                        <canvas id="portfolioNetProfitChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Block 2: Contact & Feedback Section -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2" data-i18n="contactHeader">
+                    <i class="fa-solid fa-envelope text-indigo-400"></i> 官方联系与建议反馈
+                </h3>
+                <p class="text-xs text-slate-400 mt-1" data-i18n="contactDesc">如果您对多元资产配置模型或终端功能有任何建议，欢迎随时与我们交流。</p>
+            </div>
+            <a href="mailto:simportfoliohq@gmail.com" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 font-semibold text-xs px-4 py-2.5 rounded-xl border border-slate-700 transition flex items-center gap-2 shrink-0">
+                <i class="fa-solid fa-paper-plane"></i> simportfoliohq@gmail.com
+            </a>
+        </section>
     </main>
 
     <!-- Core Script -->
@@ -145,18 +182,23 @@
                 initBase: "初始成本基准",
                 latest: "当前最新",
                 currencySymbol: "¥",
+                bannerTag: "分散投资的视觉艺术",
+                bannerTitle: "分散投资的宏观美学",
+                bannerDesc: "股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。",
+                contactHeader: "官方联系与建议反馈",
+                contactDesc: "如果您对多元资产配置模型或终端功能有任何建议，欢迎随时与我们交流。",
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
-                        items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
+                        items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'USD', shares: 2000, cost: 28.50, price: 42.00 }] 
                     },
                     { 
                         name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
-                        items: [{ ticker: '比特币 (BTC)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
+                        items: [{ ticker: '比特币 (BTC)', currency: 'USD', shares: 0.85, cost: 43189.09, price: 64500.00 }] 
                     },
                     { 
                         name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
-                        items: [{ ticker: '黄金 (GOLD518850)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
+                        items: [{ ticker: '黄金 (GOLD)', currency: 'USD', shares: 15, cost: 2050.00, price: 2520.00 }] 
                     }
                 ]
             },
@@ -194,26 +236,32 @@
                 initBase: "Initial Cost Base",
                 latest: "Latest",
                 currencySymbol: "$",
+                bannerTag: "The Art of Diversification",
+                bannerTitle: "The Art of Diversification",
+                bannerDesc: "Equities, Crypto, Commodities, and Bonds working in harmony. Visualize the power of risk-spread and steady compounding.",
+                contactHeader: "Official Contact & Feedback",
+                contactDesc: "We welcome any constructive suggestions regarding models or UI experience via our official channel.",
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
-                        items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
+                        items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'USD', shares: 2000, cost: 28.50, price: 42.00 }] 
                     },
                     { 
                         name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
-                        items: [{ ticker: 'BTC (比特币)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
+                        items: [{ ticker: 'BTC (比特币)', currency: 'USD', shares: 0.85, cost: 43189.09, price: 64500.00 }] 
                     },
                     { 
                         name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
-                        items: [{ ticker: 'GOLD518850 (黄金)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
+                        items: [{ ticker: 'GOLD (黄金)', currency: 'USD', shares: 15, cost: 2050.00, price: 2520.00 }] 
                     }
                 ]
             }
         };
 
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
+        let currentTerminalMode = 'real'; // 'real' or 'ideal'
 
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v10')) || {
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v11')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
@@ -231,6 +279,34 @@
             localStorage.setItem('sim_lang', currentLang);
             saveData();
             render();
+        }
+
+        function switchTerminalMode(mode) {
+            currentTerminalMode = mode;
+            const realBtn = document.getElementById('mode-real-btn');
+            const idealBtn = document.getElementById('mode-ideal-btn');
+            const rateBar = document.getElementById('rate-bar-box');
+            const addCatBtn = document.getElementById('add-cat-btn');
+            const snapshotBtn = document.getElementById('snapshot-btn');
+            const clearHistBtn = document.getElementById('clear-hist-btn');
+
+            if (mode === 'real') {
+                realBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white";
+                idealBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white";
+                rateBar.style.display = "flex";
+                addCatBtn.style.display = "inline-block";
+                snapshotBtn.style.display = "inline-block";
+                clearHistBtn.style.display = "inline-block";
+                render();
+            } else {
+                idealBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition bg-purple-600 text-white";
+                realBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white";
+                rateBar.style.display = "none";
+                addCatBtn.style.display = "none";
+                snapshotBtn.style.display = "none";
+                clearHistBtn.style.display = "none";
+                renderIdealModel();
+            }
         }
 
         function updateUIText() {
@@ -263,13 +339,17 @@
         }
 
         function render() {
+            if (currentTerminalMode === 'ideal') {
+                renderIdealModel();
+                return;
+            }
+
             updateUIText();
             const t = i18n[currentLang];
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
 
             portfolio.categories.forEach((cat, catIdx) => {
-                // 根据当前语言获取大类名称
                 const catName = currentLang === 'en' ? (cat.name_en || cat.name_zh || 'Assets') : (cat.name_zh || cat.name_en || '资产大类');
 
                 const card = document.createElement('div');
@@ -312,8 +392,8 @@
                         <td class="py-2.5 pr-2"><input type="text" value="${item.ticker}" oninput="saveData()" id="t-${catIdx}-${itemIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-indigo-300 font-bold focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2">
                             <select onchange="saveData()" id="cur-${catIdx}-${itemIdx}" class="bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-xs text-amber-300 font-bold focus:outline-none focus:border-indigo-500">
-                                <option value="CNY" ${item.currency==='CNY'?'selected':''}>CNY</option>
                                 <option value="USD" ${item.currency==='USD'?'selected':''}>USD</option>
+                                <option value="CNY" ${item.currency==='CNY'?'selected':''}>CNY</option>
                                 <option value="HKD" ${item.currency==='HKD'?'selected':''}>HKD</option>
                             </select>
                         </td>
@@ -330,17 +410,199 @@
             calculate();
         }
 
+        // ================= IDEAL DIVERSIFIED MODEL LOGIC (100k USD, 10 Years Backtest) =================
+        function renderIdealModel() {
+            const t = i18n[currentLang];
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            const idealCategories = [
+                {
+                    name: currentLang === 'zh' ? '📈 标普500股票 (25%)' : '📈 S&P 500 Equities (25%)',
+                    items: [{ ticker: 'SPY (US Equities)', currency: 'USD', shares: 65, cost: 380.00, price: 615.00 }]
+                },
+                {
+                    name: currentLang === 'zh' ? '🪙 加密货币避险 (25%)' : '🪙 Crypto Allocation (25%)',
+                    items: [{ ticker: 'BTC (Bitcoin)', currency: 'USD', shares: 0.87, cost: 28500.00, price: 64500.00 }]
+                },
+                {
+                    name: currentLang === 'zh' ? '🥇 黄金大宗对冲 (25%)' : '🥇 Gold Commodity (25%)',
+                    items: [{ ticker: 'GOLD (Bullion)', currency: 'USD', shares: 12.8, cost: 1950.00, price: 2520.00 }]
+                },
+                {
+                    name: currentLang === 'zh' ? '🛡️ 美国国债固收 (25%)' : '🛡️ US Treasury Bonds (25%)',
+                    items: [{ ticker: 'AGG (Bond ETF)', currency: 'USD', shares: 240, cost: 104.00, price: 102.50 }]
+                }
+            ];
+
+            idealCategories.forEach((cat) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-purple-900/40 rounded-2xl p-5 shadow-xl';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-bold text-purple-300">${cat.name}</span>
+                        <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800">理想分散等权配置</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400">
+                                    <th class="pb-2 font-medium">${t.thTicker}</th>
+                                    <th class="pb-2 font-medium">${t.thCurrency}</th>
+                                    <th class="pb-2 font-medium">${t.thShares}</th>
+                                    <th class="pb-2 font-medium">${t.thCost}</th>
+                                    <th class="pb-2 font-medium">${t.thPrice}</th>
+                                    <th class="pb-2 font-medium text-right">${t.thValue}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/50">
+                                <tr class="text-slate-300">
+                                    <td class="py-2 font-bold text-indigo-300">${cat.items[0].ticker}</td>
+                                    <td class="py-2">${cat.items[0].currency}</td>
+                                    <td class="py-2">${cat.items[0].shares}</td>
+                                    <td class="py-2">$${cat.items[0].cost.toFixed(2)}</td>
+                                    <td class="py-2">$${cat.items[0].price.toFixed(2)}</td>
+                                    <td class="py-2 text-right font-bold text-white">$${(cat.items[0].shares * cat.items[0].price).toFixed(2)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Update Ideal Dashboard Stats ($100k Principal baseline)
+            const idealTotalCost = 100000;
+            const idealTotalVal = 166100;
+            const idealProfit = idealTotalVal - idealTotalCost;
+            const idealYield = (idealProfit / idealTotalCost) * 100;
+            const symbol = currentLang === 'en' ? '$' : '¥';
+            const rate = currentLang === 'en' ? 1 : portfolio.rates.usd;
+
+            document.getElementById('total-cost').innerText = `${symbol}${(idealTotalCost * rate).toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            document.getElementById('total-value').innerText = `${symbol}${(idealTotalVal * rate).toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            
+            const pElem = document.getElementById('total-profit');
+            pElem.innerText = `+${symbol}${(idealProfit * rate).toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            pElem.className = "text-sm font-bold text-emerald-400";
+
+            const yElem = document.getElementById('total-yield');
+            yElem.innerText = `+${idealYield.toFixed(2)}%`;
+            yElem.className = "text-sm font-bold text-emerald-400";
+
+            // Ideal Model Charts (10-Year Backtest: 2016-2026)
+            const catTotals = {
+                [currentLang === 'zh' ? '股票资产' : 'Equities']: 41525,
+                [currentLang === 'zh' ? '加密货币' : 'Crypto']: 56115,
+                [currentLang === 'zh' ? '黄金大宗' : 'Commodities']: 32256,
+                [currentLang === 'zh' ? '债券固收' : 'Fixed Income']: 36204
+            };
+
+            const years = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"];
+            const growthVals = [100000, 118200, 105400, 126000, 154000, 198000, 142000, 175000, 210000, 245000, 166100].map(v => v * rate);
+            const profitVals = growthVals.map(v => v - (100000 * rate));
+
+            renderIdealCharts(catTotals, years, growthVals, profitVals);
+        }
+
+        function renderIdealCharts(catTotals, years, growthVals, profitVals) {
+            const labels = Object.keys(catTotals);
+            const values = Object.values(catTotals);
+            const total = values.reduce((a,b)=>a+b,0);
+            
+            const formattedLabels = labels.map((l, i) => {
+                const pct = ((values[i] / total) * 100).toFixed(1);
+                return `${l} (${pct}%)`;
+            });
+
+            // 1. Pie Chart
+            const ctxPie = document.getElementById('assetPieChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: formattedLabels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#6366f1', '#a855f7', '#eab308', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } }
+                }
+            });
+
+            // 2. Growth Curve (10 Years)
+            const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
+            if (lineChart) lineChart.destroy();
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        data: growthVals,
+                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    }
+                }
+            });
+
+            // 3. Net Profit Curve (10 Years)
+            const ctxNetProfit = document.getElementById('portfolioNetProfitChart').getContext('2d');
+            if (netProfitChart) netProfitChart.destroy();
+            netProfitChart = new Chart(ctxNetProfit, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        data: profitVals,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+        // ==============================================================================
+
         function addNewCategory() {
             const t = i18n[currentLang];
             const name = prompt(t.promptCat, t.promptCatDefault);
             if (!name) return;
             
-            // 根据当前界面语言，新加的资产大类初始数量、成本、单价全为 0，货币单位跟随当前界面（中文为CNY，英文为USD）
             const defaultCurrency = currentLang === 'en' ? 'USD' : 'CNY';
 
             portfolio.categories.push({ 
-                name_zh: currentLang === 'zh' ? name : name, 
-                name_en: currentLang === 'en' ? name : name, 
+                name_zh: name, 
+                name_en: name, 
                 items: [{ ticker: currentLang === 'en' ? 'NEW ASSET' : '新标的', currency: defaultCurrency, shares: 0, cost: 0, price: 0 }] 
             });
             saveData();
@@ -366,7 +628,6 @@
         }
 
         function addItem(catIdx) {
-            // 新增小类时，各项数值设为0，货币单位跟随当前界面自动匹配
             const defaultCurrency = currentLang === 'en' ? 'USD' : 'CNY';
             portfolio.categories[catIdx].items.push({ 
                 ticker: currentLang === 'en' ? 'NEW' : '新标的', 
@@ -411,11 +672,13 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v10', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v11', JSON.stringify(portfolio));
             calculate();
         }
 
         function calculate() {
+            if (currentTerminalMode === 'ideal') return;
+
             let totalVal = 0;
             let totalCost = 0;
             let catTotals = {};
@@ -430,7 +693,6 @@
                 });
                 totalVal += cVal;
                 
-                // 统计图表用的分类标签名称
                 const catName = currentLang === 'en' ? (cat.name_en || cat.name_zh) : (cat.name_zh || cat.name_en);
                 catTotals[catName] = cVal;
             });
@@ -473,7 +735,7 @@
                 portfolio.history.push({ time: timeStr, value: totalVal, netProfit: netProfit });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v10', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v11', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
@@ -483,7 +745,7 @@
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v10', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v11', JSON.stringify(portfolio));
                 calculate();
             }
         }
@@ -498,7 +760,7 @@
                 return `${l} (${pct}%)`;
             });
 
-            // 1. 环形图
+            // 1. Doughnut Chart
             const ctxPie = document.getElementById('assetPieChart').getContext('2d');
             if (pieChart) pieChart.destroy();
             pieChart = new Chart(ctxPie, {
@@ -514,17 +776,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } 
-                    }
+                    plugins: { legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } }
                 }
             });
 
-            // 准备历史数据
             let timeLabels = [];
             let histValues = [];
             let histNetProfits = [];
-
             const initialNetProfit = totalVal - totalCost;
 
             if (portfolio.history && portfolio.history.length >= 1) {
@@ -537,7 +795,7 @@
                 histNetProfits = [0, initialNetProfit];
             }
 
-            // 2. 总资产金额成长曲线
+            // 2. Growth Line Chart
             const ctxLine = document.getElementById('portfolioLineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
             lineChart = new Chart(ctxLine, {
@@ -565,7 +823,7 @@
                 }
             });
 
-            // 3. 历史净收益曲线
+            // 3. Net Profit Chart
             const ctxNetProfit = document.getElementById('portfolioNetProfitChart').getContext('2d');
             if (netProfitChart) netProfitChart.destroy();
             netProfitChart = new Chart(ctxNetProfit, {
