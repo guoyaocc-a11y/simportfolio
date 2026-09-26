@@ -48,9 +48,14 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-slate-300">资产总览与收盘记录 (折算人民币)</h3>
-                    <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow">
-                        📸 记录今日收盘净值
-                    </button>
+                    <div class="flex space-x-2">
+                        <button onclick="openQuickUpdateModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-2 rounded-xl transition font-medium shadow flex items-center space-x-1">
+                            <span>⚡ 快捷更新</span>
+                        </button>
+                        <button onclick="recordDailySnapshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl transition font-medium shadow">
+                            📸 记录今日净值
+                        </button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
@@ -89,6 +94,28 @@
         </section>
 
     </main>
+
+    <!-- ⚡ 每日快捷更新浮窗 -->
+    <div id="quickUpdateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">⚡ 快捷更新今日行情</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">直接修改最新单价，保存时将自动更新并打卡记录今日净值</p>
+                </div>
+                <button onclick="closeQuickUpdateModal()" class="text-slate-400 hover:text-white text-lg px-2">✕</button>
+            </div>
+            
+            <div id="quick-items-container" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                <!-- 动态生成持仓快速输入行 -->
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
+                <button onclick="closeQuickUpdateModal()" class="px-4 py-2 rounded-xl text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 transition">取消</button>
+                <button onclick="saveQuickUpdate()" class="px-5 py-2 rounded-xl text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition shadow">保存并自动打卡</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 核心脚本 -->
     <script>
@@ -289,6 +316,56 @@
             renderCharts(catTotals, totalValCNY, totalCostCNY);
         }
 
+        // ⚡ 快捷更新弹窗逻辑
+        function openQuickUpdateModal() {
+            const container = document.getElementById('quick-items-container');
+            container.innerHTML = '';
+
+            portfolio.categories.forEach((cat, catIdx) => {
+                cat.items.forEach((item, itemIdx) => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between space-x-3';
+                    row.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <span class="text-xs font-bold text-indigo-300 block truncate">${item.ticker}</span>
+                            <span class="text-[10px] text-slate-400">${cat.name} | 数量: ${item.shares} (${item.currency})</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-slate-400">${item.currency} 单价:</span>
+                            <input type="number" step="any" value="${item.price}" id="quick-price-${catIdx}-${itemIdx}" 
+                                   class="w-24 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white text-center font-bold focus:outline-none focus:border-indigo-500">
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            });
+
+            document.getElementById('quickUpdateModal').classList.remove('hidden');
+        }
+
+        function closeQuickUpdateModal() {
+            document.getElementById('quickUpdateModal').classList.add('hidden');
+        }
+
+        function saveQuickUpdate() {
+            portfolio.categories.forEach((cat, catIdx) => {
+                cat.items.forEach((item, itemIdx) => {
+                    const input = document.getElementById(`quick-price-${catIdx}-${itemIdx}`);
+                    if (input) {
+                        item.price = Number(input.value) || item.price;
+                    }
+                });
+            });
+
+            // 保存并刷新主界面
+            localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
+            render();
+            closeQuickUpdateModal();
+
+            // 顺便自动打卡记录今日净值
+            recordDailySnapshotSilent();
+        }
+
         function recordDailySnapshot() {
             let totalValCNY = 0;
             portfolio.categories.forEach(cat => {
@@ -310,6 +387,28 @@
             localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
             calculate();
             alert(`✅ 已记录收盘人民币快照 (${timeStr})：¥${totalValCNY.toFixed(2)}`);
+        }
+
+        function recordDailySnapshotSilent() {
+            let totalValCNY = 0;
+            portfolio.categories.forEach(cat => {
+                cat.items.forEach(item => {
+                    const rate = getMultiplier(item.currency);
+                    totalValCNY += item.shares * item.price * rate;
+                });
+            });
+
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].time.startsWith(timeStr.slice(0, 10))) {
+                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalValCNY };
+            } else {
+                portfolio.history.push({ time: timeStr, value: totalValCNY });
+            }
+
+            localStorage.setItem('sim_multicurrency_portfolio_v4', JSON.stringify(portfolio));
+            calculate();
         }
 
         function clearHistory() {
@@ -356,11 +455,9 @@
             let histValues = [];
 
             if (portfolio.history && portfolio.history.length > 0) {
-                // 如果用户已经有打卡记录，则把“总成本”作为历史第一点（或直接展示历史轨迹）
                 timeLabels = portfolio.history.map(h => h.time);
                 histValues = portfolio.history.map(h => h.value);
             } else {
-                // 如果没有打卡记录，默认强制用“初始总成本”作为起点，当前现价作为第二个点
                 timeLabels = ['初始建仓基准', '当前最新'];
                 histValues = [totalCost, totalVal];
             }
