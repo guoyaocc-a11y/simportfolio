@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">SimPortfolio - Global Private Asset Multi-Currency Terminal</title>
+    
+    <!-- 1. Google Search Console 验证 -->
+    <meta name="google-site-verification" content="6Oet3iiCVQu9GAsidyaSYqxa-Mb3hMyVX96HWgkyttY" />
+
+    <!-- 2. Google Analytics 4 (GA4) 统计代码 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGBQ5Y90TL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QGBQ5Y90TL');
+    </script>
+
+    <!-- 3. Microsoft Clarity 行为录屏代码 -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "ypao8rwcji");
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -297,7 +319,6 @@
             }
         };
 
-        // 默认首次进入为英文（如果没有在 localStorage 里存储过选择）
         let currentLang = localStorage.getItem('sim_lang') || 'en';
         let currentTerminalMode = 'real';
 
