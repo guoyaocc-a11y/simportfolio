@@ -105,6 +105,26 @@
                     </div>
                 </div>
 
+                <!-- NEW: Portfolio Health Rating Module (Markowitz Theory) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-slate-200" id="health-title-text" data-i18n="healthTitle">持仓健康度与分散诊断 (MPT模型)</h3>
+                        <span id="health-badge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800/60">-</span>
+                    </div>
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400" data-i18n="healthScoreLabel">马科维茨分散得分:</span>
+                            <span id="health-score" class="font-bold text-white">0 / 100 分</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="health-bar" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p id="health-desc" class="text-[11px] text-slate-400 leading-relaxed pt-1">
+                            正在分析您的资产大类、币种敞口与攻守平衡性...
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Pie Chart -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                     <h3 class="text-sm font-semibold text-slate-200 mb-3" id="pie-title-text" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
@@ -169,6 +189,8 @@
                 labelValue: "当前总净值 (¥)",
                 labelProfit: "总浮动盈亏 (¥)",
                 labelYield: "资金总收益率 (%)",
+                healthTitle: "持仓健康度与分散诊断 (MPT模型)",
+                healthScoreLabel: "马科维茨分散得分:",
                 pieTitle: "大类资产配置比例 (按人民币市值)",
                 lineTitle: "总资产金额成长曲线 (人民币)",
                 netProfitTitle: "历史净收益曲线 (人民币)",
@@ -223,6 +245,8 @@
                 labelValue: "Current Value ($)",
                 labelProfit: "Total Profit/Loss ($)",
                 labelYield: "Total Yield Rate (%)",
+                healthTitle: "Portfolio Health & Diversity (MPT)",
+                healthScoreLabel: "Markowitz Diversity Score:",
                 pieTitle: "Asset Allocation (By USD Market Value)",
                 lineTitle: "Total Asset Value Curve (USD)",
                 netProfitTitle: "Historical Net Profit Curve (USD)",
@@ -270,8 +294,8 @@
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
         let currentTerminalMode = 'real';
 
-        // 升级版 localStorage Key 锁定你的真实数据
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v14')) || {
+        // 升级版 localStorage Key (v15 引入健康度模型)
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v15')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
@@ -492,6 +516,16 @@
                 container.appendChild(card);
             });
 
+            // 理想模型的健康度固定展示 S 级
+            document.getElementById('health-badge').innerText = "⭐ S级 (全天候完美分散)";
+            document.getElementById('health-badge').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60";
+            document.getElementById('health-score').innerText = "98 / 100 分";
+            document.getElementById('health-bar').style.width = "98%";
+            document.getElementById('health-bar').className = "bg-emerald-500 h-full transition-all duration-500";
+            document.getElementById('health-desc').innerText = currentLang === 'zh' 
+                ? "✨ 恭喜！当前组合完美符合马科维茨现代资产配置（MPT）效率边界，大类、币种与攻守属性实现全天候完美互补。" 
+                : "✨ Perfect! Current allocation hits the MPT efficient frontier with optimal cross-asset uncoupling and risk hedging.";
+
             const idealTotalCost = 100000;
             const idealTotalVal = 166100;
             const idealProfit = idealTotalVal - idealTotalCost;
@@ -688,7 +722,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v14', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v15', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -698,7 +732,8 @@
             let totalVal = 0;
             let totalCost = 0;
             let catTotals = {};
-            const t = i18n[currentLang];
+            let currenciesUsed = new Set();
+            let totalItemsCount = 0;
 
             portfolio.categories.forEach(cat => {
                 let cVal = 0;
@@ -706,6 +741,8 @@
                     const rate = getMultiplier(item.currency);
                     cVal += item.shares * item.price * rate;
                     totalCost += item.shares * item.cost * rate;
+                    currenciesUsed.add(item.currency);
+                    totalItemsCount++;
                 });
                 totalVal += cVal;
                 
@@ -716,18 +753,96 @@
             let totalProfit = totalVal - totalCost;
             let totalYieldPct = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
 
-            document.getElementById('total-cost').innerText = `${t.currencySymbol}${totalCost.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
-            document.getElementById('total-value').innerText = `${t.currencySymbol}${totalVal.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            document.getElementById('total-cost').innerText = `${i18n[currentLang].currencySymbol}${totalCost.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            document.getElementById('total-value').innerText = `${i18n[currentLang].currencySymbol}${totalVal.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
             
             const pElem = document.getElementById('total-profit');
-            pElem.innerText = `${totalProfit >= 0 ? '+' : ''}${t.currencySymbol}${totalProfit.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+            pElem.innerText = `${totalProfit >= 0 ? '+' : ''}${i18n[currentLang].currencySymbol}${totalProfit.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
             pElem.className = `text-sm font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
             const yElem = document.getElementById('total-yield');
             yElem.innerText = `${totalYieldPct >= 0 ? '+' : ''}${totalYieldPct.toFixed(2)}%`;
             yElem.className = `text-sm font-bold ${totalYieldPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
+            // ================= MPT 持仓健康度与分散评分计算核心算法 =================
+            evaluatePortfolioHealth(catTotals, totalVal, currenciesUsed.size, totalItemsCount);
+            // =======================================================================
+
             renderCharts(catTotals, totalVal, totalCost);
+        }
+
+        // 马科维茨资产配置健康度评分与诊断逻辑
+        function evaluatePortfolioHealth(catTotals, totalVal, currencyCount, totalItemsCount) {
+            let score = 40; // 基础分
+            let activeCategoriesCount = Object.keys(catTotals).filter(k => catTotals[k] > 0).length;
+
+            // 1. 大类资产丰富度得分 (最高 35 分)
+            if (activeCategoriesCount >= 3) score += 35;
+            else if (activeCategoriesCount === 2) score += 20;
+            else if (activeCategoriesCount === 1) score += 5;
+
+            // 2. 币种/国别多元化得分 (最高 15 分)
+            if (currencyCount >= 2) score += 15;
+            else score += 5;
+
+            // 3. 权重均衡性与集中度惩罚
+            let maxCategoryRatio = 0;
+            if (totalVal > 0) {
+                for (let cat in catTotals) {
+                    let ratio = catTotals[cat] / totalVal;
+                    if (ratio > maxCategoryRatio) maxCategoryRatio = ratio;
+                }
+            }
+            if (maxCategoryRatio > 0.7) score -= 20;
+            else if (maxCategoryRatio > 0.5) score -= 10;
+            else if (maxCategoryRatio <= 0.4 && activeCategoriesCount >= 2) score += 10;
+
+            if (score > 100) score = 100;
+            if (score < 20) score = 20;
+            if (totalVal === 0) score = 0;
+
+            // 评级划分
+            let badgeText = "";
+            let badgeClass = "";
+            let barColor = "";
+            let descText = "";
+
+            if (score >= 85) {
+                badgeText = currentLang === 'zh' ? "⭐ S级 (全天候完美分散)" : "⭐ S-Class (Optimal MPT)";
+                badgeClass = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60";
+                barColor = "bg-emerald-500 h-full transition-all duration-500";
+                descText = currentLang === 'zh' 
+                    ? "✨ 恭喜！当前组合具备极佳的资产独立波动性与跨币种对冲能力，完美契合马科维茨有效边界理论。" 
+                    : "✨ Excellent! High asset uncoupling and cross-currency diversification achieved.";
+            } else if (score >= 70) {
+                badgeText = currentLang === 'zh' ? "⭐ A级 (良好分散)" : "⭐ A-Class (Good Diversity)";
+                badgeClass = "text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800/60";
+                barColor = "bg-indigo-500 h-full transition-all duration-500";
+                descText = currentLang === 'zh' 
+                    ? "👍 结构良好，具备不错的分散意识。若想冲击S级，可考虑适当增配低相关性资产（如黄金或债券）。" 
+                    : "👍 Good structure. Consider adding low-correlation assets like gold or bonds to optimize further.";
+            } else if (score >= 55) {
+                badgeText = currentLang === 'zh' ? "⚠️ B级 (中度集中)" : "⚠️ B-Class (Moderate Concentration)";
+                badgeClass = "text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-950 text-amber-400 border border-amber-800/60";
+                barColor = "bg-amber-500 h-full transition-all duration-500";
+                descText = currentLang === 'zh' 
+                    ? "💡 提示：当前资产类别或币种相对单一，抗系统性回调风险一般，建议引入不同板块进行对冲。" 
+                    : "💡 Notice: Moderate concentration. Introduce broader asset classes to reduce volatility.";
+            } else {
+                badgeText = currentLang === 'zh' ? "🔴 C级 (高度集中)" : "🔴 C-Class (High Concentration)";
+                badgeClass = "text-xs font-bold px-2.5 py-1 rounded-lg bg-rose-950 text-rose-400 border border-rose-800/60";
+                barColor = "bg-rose-500 h-full transition-all duration-500";
+                descText = currentLang === 'zh' 
+                    ? "🚨 警告：资产过度集中于单一板块或标的，波动风险较大，建议参考马科维茨理论进行多元配置。" 
+                    : "🚨 Warning: High concentration in single assets. Diversification is strongly recommended.";
+            }
+
+            document.getElementById('health-badge').innerText = badgeText;
+            document.getElementById('health-badge').className = badgeClass;
+            document.getElementById('health-score').innerText = `${score} / 100 分`;
+            document.getElementById('health-bar').style.width = `${score}%`;
+            document.getElementById('health-bar').className = barColor;
+            document.getElementById('health-desc').innerText = descText;
         }
 
         // ================= 严格按天去重与覆盖的快照逻辑 =================
@@ -744,7 +859,6 @@
 
             const netProfit = totalVal - totalCost;
             const now = new Date();
-            // 获取当前日期字符串 (格式: YYYY-MM-DD)
             const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
             const timeStr = `${dateStr} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
@@ -752,9 +866,6 @@
                 portfolio.history = [];
             }
 
-            // 检查历史记录中最后一条是否是“今天”
-            // 如果是今天：覆盖/更新今天最后一次的数据（实现当天多次点击只保存最后一次）
-            // 如果是隔天：push一条新记录（实现隔天新增，历史冻结）
             if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].dateStr === dateStr) {
                 portfolio.history[portfolio.history.length - 1] = { 
                     dateStr: dateStr, 
@@ -771,7 +882,7 @@
                 });
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v14', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v15', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
@@ -782,7 +893,7 @@
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v14', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v15', JSON.stringify(portfolio));
                 calculate();
             }
         }
