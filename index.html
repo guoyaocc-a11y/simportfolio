@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">SimPortfolio - 全球私人资产多币种终端</title>
+    <title id="page-title">SimPortfolio - Global Private Asset Multi-Currency Terminal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -13,9 +13,9 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased pb-16">
 
-    <!-- Toast Notification for Copy (已加高层级并适配中英文) -->
+    <!-- Toast Notification for Copy -->
     <div id="toast" class="fixed bottom-10 right-10 z-[100] bg-emerald-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 translate-y-20 opacity-0 flex items-center gap-2">
-        <i class="fa-solid fa-circle-check"></i> <span id="toast-text">邮箱已成功复制到剪贴板！</span>
+        <i class="fa-solid fa-circle-check"></i> <span id="toast-text">Email copied to clipboard successfully!</span>
     </div>
 
     <!-- Top Navigation -->
@@ -23,30 +23,30 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-lg">S</div>
-                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">多币种资产终端 (统一折算CNY)</span></span>
+                <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">Multi-Currency Terminal (Converted to USD)</span></span>
             </div>
 
-            <!-- Mode Switcher (Real vs Ideal Model) - 防止挤压换行，采用 whitespace-nowrap -->
+            <!-- Mode Switcher -->
             <div class="hidden md:flex bg-slate-950 p-1 rounded-xl border border-slate-800 whitespace-nowrap">
-                <button onclick="switchTerminalMode('real')" id="mode-real-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white" data-i18n="modeReal">我的实盘</button>
-                <button onclick="switchTerminalMode('ideal')" id="mode-ideal-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white" data-i18n="modeIdeal">理想分散模型 ($100k)</button>
+                <button onclick="switchTerminalMode('real')" id="mode-real-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white" data-i18n="modeReal">My Portfolio</button>
+                <button onclick="switchTerminalMode('ideal')" id="mode-ideal-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white" data-i18n="modeIdeal">Ideal Portfolio ($100k)</button>
             </div>
 
             <div class="flex items-center space-x-3">
                 <!-- Language Switch Button -->
                 <button onclick="toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2 rounded-xl transition border border-slate-700 whitespace-nowrap" id="lang-btn">
-                    Switch to English
+                    切换至中文
                 </button>
                 <!-- Exchange Rate Setting Bar -->
                 <div class="hidden lg:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs whitespace-nowrap" id="rate-bar-box">
-                    <span class="text-slate-400" data-i18n="rateLabel">💱 汇率设定:</span>
+                    <span class="text-slate-400" data-i18n="rateLabel">💱 Rates:</span>
                     <label class="text-slate-300">USD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-usd" value="6.723" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                     <label class="text-slate-300 ml-2">HKD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-hkd" value="0.856" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                 </div>
                 <button onclick="addNewCategory()" id="add-cat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow whitespace-nowrap" data-i18n="addCategory">
-                    + 新增大类资产
+                    + Add Category
                 </button>
             </div>
         </div>
@@ -60,11 +60,11 @@
             <div class="absolute right-0 top-0 translate-x-1/3 -translate-y-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="max-w-3xl space-y-2">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                    <i class="fa-solid fa-sparkles"></i> <span data-i18n="bannerTag">分散投资的视觉艺术</span>
+                    <i class="fa-solid fa-sparkles"></i> <span data-i18n="bannerTag">Private Multi-Currency Terminal</span>
                 </span>
-                <h2 class="text-lg font-bold text-white" data-i18n="bannerTitle">The Art of Diversification</h2>
+                <h2 class="text-lg font-bold text-white" data-i18n="bannerTitle">Global Portfolio Layout & MPT Health Diagnostics</h2>
                 <p class="text-xs text-slate-300 leading-relaxed" data-i18n="bannerDesc">
-                    股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。
+                    Freely track and convert multi-currency assets while leveraging Modern Portfolio Theory (MPT) to diagnose diversification health, ensuring steady compounding and robust risk hedging.
                 </p>
             </div>
         </section>
@@ -80,54 +80,54 @@
                 <!-- Statistics & Snapshot -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-slate-300" id="overview-title-text" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
+                        <h3 class="text-sm font-semibold text-slate-300" id="overview-title-text" data-i18n="overviewTitle">Portfolio Overview & Snapshot (Converted to USD)</h3>
                         <button onclick="recordDailySnapshot()" id="snapshot-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow whitespace-nowrap" data-i18n="snapshotBtn">
-                            📸 记录今日收盘净值
+                            📸 Record Snapshot
                         </button>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                            <span class="text-[10px] text-slate-400 block mb-1" id="label-cost-text" data-i18n="labelCost">初始总投入 (¥)</span>
-                            <span id="total-cost" class="text-sm font-bold text-slate-200">¥0.00</span>
+                            <span class="text-[10px] text-slate-400 block mb-1" id="label-cost-text" data-i18n="labelCost">Initial Cost ($)</span>
+                            <span id="total-cost" class="text-sm font-bold text-slate-200">$0.00</span>
                         </div>
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                            <span class="text-[10px] text-slate-400 block mb-1" id="label-value-text" data-i18n="labelValue">当前总净值 (¥)</span>
-                            <span id="total-value" class="text-sm font-bold text-white">¥0.00</span>
+                            <span class="text-[10px] text-slate-400 block mb-1" id="label-value-text" data-i18n="labelValue">Current Value ($)</span>
+                            <span id="total-value" class="text-sm font-bold text-white">$0.00</span>
                         </div>
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                            <span class="text-[10px] text-slate-400 block mb-1" id="label-profit-text" data-i18n="labelProfit">总浮动盈亏 (¥)</span>
-                            <span id="total-profit" class="text-sm font-bold text-emerald-400">+¥0.00</span>
+                            <span class="text-[10px] text-slate-400 block mb-1" id="label-profit-text" data-i18n="labelProfit">Total Profit/Loss ($)</span>
+                            <span id="total-profit" class="text-sm font-bold text-emerald-400">+$0.00</span>
                         </div>
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80">
-                            <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield" id="label-yield-text">资金总收益率 (%)</span>
+                            <span class="text-[10px] text-slate-400 block mb-1" data-i18n="labelYield" id="label-yield-text">Total Yield Rate (%)</span>
                             <span id="total-yield" class="text-sm font-bold text-emerald-400">+0.00%</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Portfolio Health Rating Module (Markowitz Theory) -->
+                <!-- Portfolio Health Rating Module -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-slate-200" id="health-title-text" data-i18n="healthTitle">持仓健康度与分散诊断 (MPT模型)</h3>
+                        <h3 class="text-sm font-semibold text-slate-200" id="health-title-text" data-i18n="healthTitle">Portfolio Health & Diversity (MPT)</h3>
                         <span id="health-badge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-950 text-indigo-400 border border-indigo-800/60">-</span>
                     </div>
                     <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-2">
                         <div class="flex justify-between text-xs">
-                            <span class="text-slate-400" data-i18n="healthScoreLabel">马科维茨分散得分:</span>
-                            <span id="health-score" class="font-bold text-white">0 / 100 分</span>
+                            <span class="text-slate-400" data-i18n="healthScoreLabel">Markowitz Diversity Score:</span>
+                            <span id="health-score" class="font-bold text-white">0 / 100 Pts</span>
                         </div>
                         <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                             <div id="health-bar" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                         <p id="health-desc" class="text-[11px] text-slate-400 leading-relaxed pt-1">
-                            正在分析您的资产大类、币种敞口与攻守平衡性...
+                            Analyzing asset classes, currency exposure, and risk-reward balance...
                         </p>
                     </div>
                 </div>
 
                 <!-- Pie Chart -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-sm font-semibold text-slate-200 mb-3" id="pie-title-text" data-i18n="pieTitle">大类资产配置比例 (按人民币市值)</h3>
+                    <h3 class="text-sm font-semibold text-slate-200 mb-3" id="pie-title-text" data-i18n="pieTitle">Asset Allocation (By USD Market Value)</h3>
                     <div class="relative h-[180px] w-full flex items-center justify-center">
                         <canvas id="assetPieChart"></canvas>
                     </div>
@@ -136,8 +136,8 @@
                 <!-- Line Chart: Total Asset Value -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-200" id="line-title-text" data-i18n="lineTitle">总资产金额成长曲线 (人民币)</h3>
-                        <button onclick="clearHistory()" id="clear-hist-btn" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">清空历史记录</button>
+                        <h3 class="text-sm font-semibold text-slate-200" id="line-title-text" data-i18n="lineTitle">Total Asset Value Curve (USD)</h3>
+                        <button onclick="clearHistory()" id="clear-hist-btn" class="text-[10px] text-rose-400 hover:underline" data-i18n="clearHistory">Clear History</button>
                     </div>
                     <div class="relative h-[150px] w-full flex items-center justify-center">
                         <canvas id="portfolioLineChart"></canvas>
@@ -147,7 +147,7 @@
                 <!-- Line Chart: Net Profit Amount -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-200" id="net-profit-title-text" data-i18n="netProfitTitle">历史净收益曲线 (人民币)</h3>
+                        <h3 class="text-sm font-semibold text-slate-200" id="net-profit-title-text" data-i18n="netProfitTitle">Historical Net Profit Curve (USD)</h3>
                     </div>
                     <div class="relative h-[150px] w-full flex items-center justify-center">
                         <canvas id="portfolioNetProfitChart"></canvas>
@@ -156,18 +156,18 @@
             </section>
         </div>
 
-        <!-- Block 2: Compact Contact & Feedback Section (Click to Copy Email) -->
+        <!-- Block 2: Compact Contact & Feedback Section -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 shadow-xl flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm shrink-0 border border-indigo-500/30">
                     <i class="fa-solid fa-envelope"></i>
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-200" data-i18n="contactHeader">官方联系与建议反馈</h3>
-                    <p class="text-[11px] text-slate-400" data-i18n="contactDesc">如果您对多元资产配置模型或终端功能有任何建议，欢迎随时与我们交流。</p>
+                    <h3 class="text-xs font-bold text-slate-200" data-i18n="contactHeader">Official Contact & Feedback</h3>
+                    <p class="text-[11px] text-slate-400" data-i18n="contactDesc">Feel free to reach out with any suggestions or feedback on the allocation models.</p>
                 </div>
             </div>
-            <button onclick="copyEmail()" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 font-semibold text-xs px-3.5 py-2 rounded-xl border border-slate-700 transition flex items-center gap-2 shrink-0 active:scale-95 group" title="点击复制邮箱">
+            <button onclick="copyEmail()" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 font-semibold text-xs px-3.5 py-2 rounded-xl border border-slate-700 transition flex items-center gap-2 shrink-0 active:scale-95 group" title="Click to copy email">
                 <i class="fa-solid fa-copy text-slate-400 group-hover:text-indigo-300"></i> 
                 <span id="email-text">simportfoliohq@gmail.com</span>
             </button>
@@ -213,9 +213,9 @@
                 initBase: "初始成本基准",
                 latest: "当前最新",
                 currencySymbol: "¥",
-                bannerTag: "分散投资的视觉艺术",
-                bannerTitle: "分散投资的宏观美学",
-                bannerDesc: "股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。",
+                bannerTag: "多币种私有资产终端",
+                bannerTitle: "全局资产编排与马科维茨健康诊断",
+                bannerDesc: "支持多币种资产的自由录入与统一折算，结合现代资产配置（MPT）模型对持仓进行深度分散诊断与健康度评级，助您直观审视全球资产的稳健成长与风险对冲。",
                 contactHeader: "官方联系与建议反馈",
                 contactDesc: "点击右侧邮箱即可自动复制",
                 toastMsg: "邮箱已成功复制到剪贴板！",
@@ -224,15 +224,15 @@
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
-                        items: [{ ticker: '泡泡玛特 (POPMART)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
+                        items: [{ ticker: 'POPMART (泡泡玛特)', currency: 'HKD', shares: 400, cost: 152.316, price: 152.1 }] 
                     },
                     { 
                         name_zh: '🪙 加密货币与合约', name_en: '🪙 Crypto & Futures',
-                        items: [{ ticker: '比特币 (BTC)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
+                        items: [{ ticker: 'BTC (比特币)', currency: 'CNY', shares: 1, cost: 43189.09, price: 47240.5 }] 
                     },
                     { 
                         name_zh: '🥇 大宗类', name_en: '🥇 Commodities',
-                        items: [{ ticker: '黄金 (GOLD518850)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
+                        items: [{ ticker: 'GOLD518850 (黄金)', currency: 'CNY', shares: 1800, cost: 8.669, price: 8.881 }] 
                     }
                 ]
             },
@@ -272,9 +272,9 @@
                 initBase: "Initial Cost Base",
                 latest: "Latest",
                 currencySymbol: "$",
-                bannerTag: "The Art of Diversification",
-                bannerTitle: "The Art of Diversification",
-                bannerDesc: "Equities, Crypto, Commodities, and Bonds working in harmony. Visualize the power of risk-spread and steady compounding.",
+                bannerTag: "Private Multi-Currency Terminal",
+                bannerTitle: "Global Portfolio Layout & MPT Health Diagnostics",
+                bannerDesc: "Freely track and convert multi-currency assets while leveraging Modern Portfolio Theory (MPT) to diagnose diversification health, ensuring steady compounding and robust risk hedging.",
                 contactHeader: "Official Contact & Feedback",
                 contactDesc: "Click email on the right to copy",
                 toastMsg: "Email copied to clipboard successfully!",
@@ -297,7 +297,8 @@
             }
         };
 
-        let currentLang = localStorage.getItem('sim_lang') || 'zh';
+        // 默认首次进入为英文（如果没有在 localStorage 里存储过选择）
+        let currentLang = localStorage.getItem('sim_lang') || 'en';
         let currentTerminalMode = 'real';
 
         let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v15')) || {
@@ -493,7 +494,7 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-sm font-bold text-purple-300">${cat.name}</span>
-                        <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800 whitespace-nowrap">理想分散等权配置 ($100k)</span>
+                        <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800 whitespace-nowrap">Ideal Equal-Weight ($100k)</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
