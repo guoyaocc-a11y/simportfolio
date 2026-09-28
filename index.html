@@ -270,8 +270,8 @@
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
         let currentTerminalMode = 'real';
 
-        // 升级版 localStorage Key 确保完全读取你手输的数据
-        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v13')) || {
+        // 升级版 localStorage Key 锁定你的真实数据
+        let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v14')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
             history: [] 
@@ -431,13 +431,12 @@
             calculate();
         }
 
-        // ================= REAL 10-YEAR HISTORICAL BACKTEST (2016-2026) =================
+        // ================= IDEAL DIVERSIFIED MODEL =================
         function renderIdealModel() {
             const t = i18n[currentLang];
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
 
-            // 理想分散模型明细 ($100,000 等权配置：美股SPY、比特币BTC、黄金GOLD、美债AGG 各25%)
             const idealCategories = [
                 {
                     name: currentLang === 'zh' ? '📈 标普500股票 (25%)' : '📈 S&P 500 Equities (25%)',
@@ -494,7 +493,7 @@
             });
 
             const idealTotalCost = 100000;
-            const idealTotalVal = 166100; // 基于2016-2026宏观真实回测结果
+            const idealTotalVal = 166100;
             const idealProfit = idealTotalVal - idealTotalCost;
             const idealYield = (idealProfit / idealTotalCost) * 100;
             const symbol = currentLang === 'en' ? '$' : '¥';
@@ -518,7 +517,6 @@
                 [currentLang === 'zh' ? '美国国债' : 'US Treasuries']: 37754
             };
 
-            // 真实历史回溯数据 (2016 - 2026 跨周期宏观演变)
             const years = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"];
             const growthVals = [100000, 118200, 105400, 126000, 154000, 198000, 142000, 175000, 210000, 245000, 166100].map(v => v * rate);
             const profitVals = growthVals.map(v => v - (100000 * rate));
@@ -690,7 +688,7 @@
                 });
             });
 
-            localStorage.setItem('sim_multicurrency_portfolio_v13', JSON.stringify(portfolio));
+            localStorage.setItem('sim_multicurrency_portfolio_v14', JSON.stringify(portfolio));
             calculate();
         }
 
@@ -732,6 +730,7 @@
             renderCharts(catTotals, totalVal, totalCost);
         }
 
+        // ================= 严格按天去重与覆盖的快照逻辑 =================
         function recordDailySnapshot() {
             let totalVal = 0;
             let totalCost = 0;
@@ -745,25 +744,45 @@
 
             const netProfit = totalVal - totalCost;
             const now = new Date();
-            const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].time.startsWith(timeStr.slice(0, 10))) {
-                portfolio.history[portfolio.history.length - 1] = { time: timeStr, value: totalVal, netProfit: netProfit };
-            } else {
-                portfolio.history.push({ time: timeStr, value: totalVal, netProfit: netProfit });
+            // 获取当前日期字符串 (格式: YYYY-MM-DD)
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            const timeStr = `${dateStr} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            if (!portfolio.history) {
+                portfolio.history = [];
             }
 
-            localStorage.setItem('sim_multicurrency_portfolio_v13', JSON.stringify(portfolio));
+            // 检查历史记录中最后一条是否是“今天”
+            // 如果是今天：覆盖/更新今天最后一次的数据（实现当天多次点击只保存最后一次）
+            // 如果是隔天：push一条新记录（实现隔天新增，历史冻结）
+            if (portfolio.history.length > 0 && portfolio.history[portfolio.history.length - 1].dateStr === dateStr) {
+                portfolio.history[portfolio.history.length - 1] = { 
+                    dateStr: dateStr, 
+                    time: timeStr, 
+                    value: totalVal, 
+                    netProfit: netProfit 
+                };
+            } else {
+                portfolio.history.push({ 
+                    dateStr: dateStr, 
+                    time: timeStr, 
+                    value: totalVal, 
+                    netProfit: netProfit 
+                });
+            }
+
+            localStorage.setItem('sim_multicurrency_portfolio_v14', JSON.stringify(portfolio));
             calculate();
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
         }
+        // ==============================================================
 
         function clearHistory() {
             const t = i18n[currentLang];
             if (confirm(t.confirmClearHist)) {
                 portfolio.history = [];
-                localStorage.setItem('sim_multicurrency_portfolio_v13', JSON.stringify(portfolio));
+                localStorage.setItem('sim_multicurrency_portfolio_v14', JSON.stringify(portfolio));
                 calculate();
             }
         }
