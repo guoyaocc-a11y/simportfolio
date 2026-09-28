@@ -13,9 +13,9 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased pb-16">
 
-    <!-- Toast Notification for Copy (已将 z-index 调高并优化显示层级，避免被遮挡) -->
+    <!-- Toast Notification for Copy (已加高层级并适配中英文) -->
     <div id="toast" class="fixed bottom-10 right-10 z-[100] bg-emerald-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 translate-y-20 opacity-0 flex items-center gap-2">
-        <i class="fa-solid fa-circle-check"></i> 邮箱已成功复制到剪贴板！
+        <i class="fa-solid fa-circle-check"></i> <span id="toast-text">邮箱已成功复制到剪贴板！</span>
     </div>
 
     <!-- Top Navigation -->
@@ -26,26 +26,26 @@
                 <span class="text-xl font-bold tracking-tight">SimPortfolio<span id="nav-subtitle" class="text-indigo-400 text-sm ml-2 font-normal">多币种资产终端 (统一折算CNY)</span></span>
             </div>
 
-            <!-- Mode Switcher (Real vs Ideal Model) -->
-            <div class="hidden md:flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button onclick="switchTerminalMode('real')" id="mode-real-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white">我的实盘</button>
-                <button onclick="switchTerminalMode('ideal')" id="mode-ideal-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white">理想分散模型 ($100k)</button>
+            <!-- Mode Switcher (Real vs Ideal Model) - 防止挤压换行，采用 whitespace-nowrap -->
+            <div class="hidden md:flex bg-slate-950 p-1 rounded-xl border border-slate-800 whitespace-nowrap">
+                <button onclick="switchTerminalMode('real')" id="mode-real-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white" data-i18n="modeReal">我的实盘</button>
+                <button onclick="switchTerminalMode('ideal')" id="mode-ideal-btn" class="px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white" data-i18n="modeIdeal">理想分散模型 ($100k)</button>
             </div>
 
             <div class="flex items-center space-x-3">
                 <!-- Language Switch Button -->
-                <button onclick="toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2 rounded-xl transition border border-slate-700" id="lang-btn">
+                <button onclick="toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2 rounded-xl transition border border-slate-700 whitespace-nowrap" id="lang-btn">
                     Switch to English
                 </button>
                 <!-- Exchange Rate Setting Bar -->
-                <div class="hidden md:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs" id="rate-bar-box">
+                <div class="hidden lg:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs whitespace-nowrap" id="rate-bar-box">
                     <span class="text-slate-400" data-i18n="rateLabel">💱 汇率设定:</span>
                     <label class="text-slate-300">USD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-usd" value="6.723" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                     <label class="text-slate-300 ml-2">HKD/CNY:</label>
                     <input type="number" step="0.0001" id="rate-hkd" value="0.856" oninput="updateRates()" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-indigo-300 font-bold focus:outline-none">
                 </div>
-                <button onclick="addNewCategory()" id="add-cat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow" data-i18n="addCategory">
+                <button onclick="addNewCategory()" id="add-cat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow whitespace-nowrap" data-i18n="addCategory">
                     + 新增大类资产
                 </button>
             </div>
@@ -81,7 +81,7 @@
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-semibold text-slate-300" id="overview-title-text" data-i18n="overviewTitle">资产总览与收盘记录 (折算人民币)</h3>
-                        <button onclick="recordDailySnapshot()" id="snapshot-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow" data-i18n="snapshotBtn">
+                        <button onclick="recordDailySnapshot()" id="snapshot-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3.5 py-2 rounded-xl transition font-medium shadow whitespace-nowrap" data-i18n="snapshotBtn">
                             📸 记录今日收盘净值
                         </button>
                     </div>
@@ -218,6 +218,9 @@
                 bannerDesc: "股票、加密货币、黄金与债券交织的平衡之美。在单一基准货币下，直观审视全球多元资产配置的稳健成长与风险对冲。",
                 contactHeader: "官方联系与建议反馈",
                 contactDesc: "点击右侧邮箱即可自动复制",
+                toastMsg: "邮箱已成功复制到剪贴板！",
+                modeReal: "我的实盘",
+                modeIdeal: "理想分散模型 ($100k)",
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
@@ -240,7 +243,7 @@
                 rateLabel: "💱 Rates:",
                 addCategory: "+ Add Category",
                 overviewTitle: "Portfolio Overview & Snapshot (Converted to USD)",
-                snapshotBtn: "📸 Record Today's Snapshot",
+                snapshotBtn: "📸 Record Snapshot",
                 labelCost: "Initial Cost ($)",
                 labelValue: "Current Value ($)",
                 labelProfit: "Total Profit/Loss ($)",
@@ -274,6 +277,9 @@
                 bannerDesc: "Equities, Crypto, Commodities, and Bonds working in harmony. Visualize the power of risk-spread and steady compounding.",
                 contactHeader: "Official Contact & Feedback",
                 contactDesc: "Click email on the right to copy",
+                toastMsg: "Email copied to clipboard successfully!",
+                modeReal: "My Portfolio",
+                modeIdeal: "Ideal Portfolio ($100k)",
                 defaultCategories: [
                     { 
                         name_zh: '📈 股票类资产', name_en: '📈 Equities',
@@ -310,6 +316,8 @@
         function copyEmail() {
             const email = "simportfoliohq@gmail.com";
             navigator.clipboard.writeText(email).then(() => {
+                const t = i18n[currentLang];
+                document.getElementById('toast-text').innerText = t.toastMsg;
                 const toast = document.getElementById('toast');
                 toast.classList.remove('translate-y-20', 'opacity-0');
                 setTimeout(() => {
@@ -335,20 +343,20 @@
             const clearHistBtn = document.getElementById('clear-hist-btn');
 
             if (mode === 'real') {
-                realBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white";
-                idealBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white";
-                rateBar.style.display = "flex";
-                addCatBtn.style.display = "inline-block";
-                snapshotBtn.style.display = "inline-block";
-                clearHistBtn.style.display = "inline-block";
+                realBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition bg-indigo-600 text-white whitespace-nowrap";
+                idealBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white whitespace-nowrap";
+                if (rateBar) rateBar.style.display = "flex";
+                if (addCatBtn) addCatBtn.style.display = "inline-block";
+                if (snapshotBtn) snapshotBtn.style.display = "inline-block";
+                if (clearHistBtn) clearHistBtn.style.display = "inline-block";
                 render();
             } else {
-                idealBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition bg-purple-600 text-white";
-                realBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white";
-                rateBar.style.display = "none";
-                addCatBtn.style.display = "none";
-                snapshotBtn.style.display = "none";
-                clearHistBtn.style.display = "none";
+                idealBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition bg-purple-600 text-white whitespace-nowrap";
+                realBtn.className = "px-3 py-1 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white whitespace-nowrap";
+                if (rateBar) rateBar.style.display = "none";
+                if (addCatBtn) addCatBtn.style.display = "none";
+                if (snapshotBtn) snapshotBtn.style.display = "none";
+                if (clearHistBtn) clearHistBtn.style.display = "none";
                 renderIdealModel();
             }
         }
@@ -403,8 +411,8 @@
                         <input type="text" value="${catName}" onchange="updateCatName(${catIdx}, this.value)" 
                                class="bg-transparent text-sm font-bold text-slate-200 border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1">
                         <div class="flex space-x-2">
-                            <button onclick="addItem(${catIdx})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition">${t.btnAddItem}</button>
-                            <button onclick="removeCat(${catIdx})" class="text-xs text-rose-400 hover:text-rose-300 px-1.5 py-1 bg-rose-950/30 rounded border border-rose-900/50">${t.btnRemoveCat}</button>
+                            <button onclick="addItem(${catIdx})" class="text-xs bg-indigo-600/80 hover:bg-indigo-600 text-white px-2.5 py-1 rounded-lg transition whitespace-nowrap">${t.btnAddItem}</button>
+                            <button onclick="removeCat(${catIdx})" class="text-xs text-rose-400 hover:text-rose-300 px-1.5 py-1 bg-rose-950/30 rounded border border-rose-900/50 whitespace-nowrap">${t.btnRemoveCat}</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -444,7 +452,7 @@
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.shares}" oninput="saveData()" id="s-${catIdx}-${itemIdx}" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.cost}" oninput="saveData()" id="c-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"></td>
                         <td class="py-2.5 pr-2"><input type="number" step="any" value="${item.price}" oninput="saveData()" id="p-${catIdx}-${itemIdx}" class="w-20 bg-slate-950 border border-indigo-900/80 rounded px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"></td>
-                        <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium" id="v-${catIdx}-${itemIdx}">${t.currencySymbol}${mVal.toFixed(2)}</td>
+                        <td class="py-2.5 pr-2 text-xs text-slate-300 font-medium whitespace-nowrap" id="v-${catIdx}-${itemIdx}">${t.currencySymbol}${mVal.toFixed(2)}</td>
                         <td class="py-2.5 text-right"><button onclick="removeItem(${catIdx}, ${itemIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5 py-0.5 bg-rose-950/30 rounded border border-rose-900/50">${t.btnDelete}</button></td>
                     `;
                     tbody.appendChild(tr);
@@ -455,6 +463,7 @@
         }
 
         function renderIdealModel() {
+            updateUIText();
             const t = i18n[currentLang];
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
@@ -484,7 +493,7 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-sm font-bold text-purple-300">${cat.name}</span>
-                        <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800">理想分散等权配置 ($100k)</span>
+                        <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800 whitespace-nowrap">理想分散等权配置 ($100k)</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
@@ -514,9 +523,9 @@
                 container.appendChild(card);
             });
 
-            document.getElementById('health-badge').innerText = "⭐ S级 (全天候完美分散)";
+            document.getElementById('health-badge').innerText = currentLang === 'zh' ? "⭐ S级 (全天候完美分散)" : "⭐ S-Class (Optimal MPT)";
             document.getElementById('health-badge').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60";
-            document.getElementById('health-score').innerText = "98 / 100 分";
+            document.getElementById('health-score').innerText = currentLang === 'zh' ? "98 / 100 分" : "98 / 100 Pts";
             document.getElementById('health-bar').style.width = "98%";
             document.getElementById('health-bar').className = "bg-emerald-500 h-full transition-all duration-500";
             document.getElementById('health-desc').innerText = currentLang === 'zh' 
@@ -542,10 +551,10 @@
             yElem.className = "text-sm font-bold text-emerald-400";
 
             const catTotals = {
-                [currentLang === 'zh' ? '标普500股票' : 'S&P 500']: 39975,
-                [currentLang === 'zh' ? '加密货币' : 'Crypto']: 56115,
-                [currentLang === 'zh' ? '黄金大宗' : 'Commodities']: 32256,
-                [currentLang === 'zh' ? '美国国债' : 'US Treasuries']: 37754
+                [currentLang === 'zh' ? '标普500股票' : 'S&P 500']: 39975 * rate,
+                [currentLang === 'zh' ? '加密货币' : 'Crypto']: 56115 * rate,
+                [currentLang === 'zh' ? '黄金大宗' : 'Commodities']: 32256 * rate,
+                [currentLang === 'zh' ? '美国国债' : 'US Treasuries']: 37754 * rate
             };
 
             const years = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"];
@@ -606,7 +615,7 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
-                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 }, callback: function(v) { return i18n[currentLang].currencySymbol + v.toLocaleString(); } } }
                     }
                 }
             });
@@ -633,7 +642,7 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } },
-                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 } } }
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 9 }, callback: function(v) { return i18n[currentLang].currencySymbol + v.toLocaleString(); } } }
                     }
                 }
             });
@@ -827,7 +836,7 @@
 
             document.getElementById('health-badge').innerText = badgeText;
             document.getElementById('health-badge').className = badgeClass;
-            document.getElementById('health-score').innerText = `${score} / 100 分`;
+            document.getElementById('health-score').innerText = `${score} / ${currentLang === 'zh' ? '100 分' : '100 Pts'}`;
             document.getElementById('health-bar').style.width = `${score}%`;
             document.getElementById('health-bar').className = barColor;
             document.getElementById('health-desc').innerText = descText;
