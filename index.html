@@ -13,8 +13,8 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased pb-16">
 
-    <!-- Toast Notification for Copy -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 translate-y-20 opacity-0 flex items-center gap-2">
+    <!-- Toast Notification for Copy (已将 z-index 调高并优化显示层级，避免被遮挡) -->
+    <div id="toast" class="fixed bottom-10 right-10 z-[100] bg-emerald-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 translate-y-20 opacity-0 flex items-center gap-2">
         <i class="fa-solid fa-circle-check"></i> 邮箱已成功复制到剪贴板！
     </div>
 
@@ -105,7 +105,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: Portfolio Health Rating Module (Markowitz Theory) -->
+                <!-- Portfolio Health Rating Module (Markowitz Theory) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-3">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-semibold text-slate-200" id="health-title-text" data-i18n="healthTitle">持仓健康度与分散诊断 (MPT模型)</h3>
@@ -294,7 +294,6 @@
         let currentLang = localStorage.getItem('sim_lang') || 'zh';
         let currentTerminalMode = 'real';
 
-        // 升级版 localStorage Key (v15 引入健康度模型)
         let portfolio = JSON.parse(localStorage.getItem('sim_multicurrency_portfolio_v15')) || {
             rates: { usd: 6.723, hkd: 0.856 },
             categories: i18n[currentLang].defaultCategories,
@@ -455,7 +454,6 @@
             calculate();
         }
 
-        // ================= IDEAL DIVERSIFIED MODEL =================
         function renderIdealModel() {
             const t = i18n[currentLang];
             const container = document.getElementById('categories-container');
@@ -516,7 +514,6 @@
                 container.appendChild(card);
             });
 
-            // 理想模型的健康度固定展示 S 级
             document.getElementById('health-badge').innerText = "⭐ S级 (全天候完美分散)";
             document.getElementById('health-badge').className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60";
             document.getElementById('health-score').innerText = "98 / 100 分";
@@ -641,7 +638,6 @@
                 }
             });
         }
-        // ==============================================================================
 
         function addNewCategory() {
             const t = i18n[currentLang];
@@ -764,28 +760,21 @@
             yElem.innerText = `${totalYieldPct >= 0 ? '+' : ''}${totalYieldPct.toFixed(2)}%`;
             yElem.className = `text-sm font-bold ${totalYieldPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            // ================= MPT 持仓健康度与分散评分计算核心算法 =================
             evaluatePortfolioHealth(catTotals, totalVal, currenciesUsed.size, totalItemsCount);
-            // =======================================================================
-
             renderCharts(catTotals, totalVal, totalCost);
         }
 
-        // 马科维茨资产配置健康度评分与诊断逻辑
         function evaluatePortfolioHealth(catTotals, totalVal, currencyCount, totalItemsCount) {
-            let score = 40; // 基础分
+            let score = 40;
             let activeCategoriesCount = Object.keys(catTotals).filter(k => catTotals[k] > 0).length;
 
-            // 1. 大类资产丰富度得分 (最高 35 分)
             if (activeCategoriesCount >= 3) score += 35;
             else if (activeCategoriesCount === 2) score += 20;
             else if (activeCategoriesCount === 1) score += 5;
 
-            // 2. 币种/国别多元化得分 (最高 15 分)
             if (currencyCount >= 2) score += 15;
             else score += 5;
 
-            // 3. 权重均衡性与集中度惩罚
             let maxCategoryRatio = 0;
             if (totalVal > 0) {
                 for (let cat in catTotals) {
@@ -801,7 +790,6 @@
             if (score < 20) score = 20;
             if (totalVal === 0) score = 0;
 
-            // 评级划分
             let badgeText = "";
             let badgeClass = "";
             let barColor = "";
@@ -845,7 +833,6 @@
             document.getElementById('health-desc').innerText = descText;
         }
 
-        // ================= 严格按天去重与覆盖的快照逻辑 =================
         function recordDailySnapshot() {
             let totalVal = 0;
             let totalCost = 0;
@@ -887,7 +874,6 @@
             const t = i18n[currentLang];
             alert(`${t.alertSnapshot} (${timeStr})：${t.currencySymbol}${totalVal.toFixed(2)} (Net Profit: ${t.currencySymbol}${netProfit.toFixed(2)})`);
         }
-        // ==============================================================
 
         function clearHistory() {
             const t = i18n[currentLang];
